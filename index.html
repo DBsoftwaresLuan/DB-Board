@@ -81,6 +81,20 @@
           <span>Notificações</span>
           <span class="nav-badge" id="navNotifBadge">3</span>
         </div>
+        <!-- Itens exclusivos do admin DB Softwares -->
+        <div class="nav-item noc-only" data-view="gestao" id="navGestao" style="display:none">
+          <i class="fas fa-chart-pie"></i>
+          <span>Gestão de Clientes</span>
+        </div>
+        <div class="nav-item noc-only" data-view="monitor" id="navMonitor" style="display:none">
+          <i class="fas fa-display"></i>
+          <span>Monitor Tempo Real</span>
+          <span class="nav-badge nav-badge-danger" id="navMonitorBadge">2</span>
+        </div>
+        <div class="nav-item noc-only" data-view="admin" id="navAdmin" style="display:none">
+          <i class="fas fa-tower-broadcast"></i>
+          <span>Admin &amp; Tickets</span>
+        </div>
       </div>
 
       <!-- Grupo: Sistema -->
@@ -89,27 +103,6 @@
         <div class="nav-item" data-view="configuracoes">
           <i class="fas fa-sliders"></i>
           <span>Configurações</span>
-        </div>
-      </div>
-
-      <!-- Grupo DB Softwares (aparece apenas para admin) -->
-      <div class="noc-divider" id="nocDivider" style="display: none;">
-        <div class="noc-badge"><i class="fas fa-shield-halved"></i> DB Softwares — Admin</div>
-      </div>
-
-      <div class="nav-group noc-only-group" id="nocGroup" style="display:none">
-        <div class="nav-item noc-only" data-view="gestao" id="navGestao">
-          <i class="fas fa-chart-pie"></i>
-          <span>Gestão de Clientes</span>
-        </div>
-        <div class="nav-item noc-only" data-view="monitor" id="navMonitor">
-          <i class="fas fa-display"></i>
-          <span>Monitor Tempo Real</span>
-          <span class="nav-badge nav-badge-danger" id="navMonitorBadge">2</span>
-        </div>
-        <div class="nav-item noc-only" data-view="admin" id="navAdmin">
-          <i class="fas fa-tower-broadcast"></i>
-          <span>Admin &amp; Tickets</span>
         </div>
       </div>
 
@@ -139,10 +132,9 @@
         <h2><i class="fas fa-chart-line"></i> Painel de Execuções</h2>
       </div>
       <div class="user-info">
-        <span class="badge-cliente" id="clienteNome">
-          <i class="fas fa-building"></i>
-        </span>
-        <div class="avatar" id="userAvatar">DB</div>
+        <div class="topbar-logo-wrap" id="topbarLogoWrap">
+          <img id="topbarLogoImg" src="" alt="Logo" class="topbar-logo-img">
+        </div>
         <span class="role-badge" id="roleBadge"></span>
         <button class="btn-logout" id="btnLogout" title="Sair"
           onclick="(function(){ sessionStorage.clear(); window.location.href='login.html'; })()">

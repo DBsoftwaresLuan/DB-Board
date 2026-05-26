@@ -548,44 +548,48 @@ function renderNocViews() {
   }
 }
 
+// Mapeamento de usuário → logo
+const USER_LOGOS = {
+  dbsoftwares: '/assets/logo-dbsoftwares.jpg',
+  rocha:       '/assets/logo-rocha.jpg',
+  autus:       '/assets/logo-autus.jpg',
+};
+
 // ==================== INICIALIZAÇÃO DO MODO DE USUÁRIO ====================
 function initUserMode() {
   const isAdmin = currentUser.role === 'dbsoftwares';
+
+  // Logo na topbar
+  const topbarLogoImg = document.getElementById('topbarLogoImg');
+  if (topbarLogoImg) {
+    topbarLogoImg.src = USER_LOGOS[currentUser.username] || '/assets/logo-dbsoftwares.jpg';
+    topbarLogoImg.alt = currentUser.displayName;
+  }
 
   // Badge de papel na topbar
   const roleBadge = document.getElementById('roleBadge');
   if (roleBadge) {
     if (isAdmin) {
-      roleBadge.innerHTML = '<i class="fas fa-shield-halved"></i> DB Softwares';
+      roleBadge.innerHTML = '<i class="fas fa-shield-halved"></i> Administrador';
     } else {
       roleBadge.innerHTML = `<i class="fas fa-building"></i> ${currentUser.displayName}`;
     }
   }
 
-  // Nome do cliente na topbar
-  const clienteNomeEl = document.getElementById('clienteNome');
-  if (clienteNomeEl) {
-    clienteNomeEl.innerHTML = `<i class="fas fa-building"></i> ${currentUser.clienteNome}`;
-  }
-
-  // Avatar
+  // Sidebar: nome, role e avatar
   const initials = currentUser.displayName.substring(0, 2).toUpperCase();
-  const userAvatar = document.getElementById('userAvatar');
-  if (userAvatar) userAvatar.textContent = initials;
-
-  // Sidebar: nome e role
-  const sidebarName = document.getElementById('sidebarUserName');
-  const sidebarRole = document.getElementById('sidebarUserRole');
+  const sidebarName   = document.getElementById('sidebarUserName');
+  const sidebarRole   = document.getElementById('sidebarUserRole');
   const sidebarAvatar = document.getElementById('sidebarAvatar');
-  if (sidebarName) sidebarName.textContent = currentUser.displayName;
-  if (sidebarRole) sidebarRole.textContent = isAdmin ? 'Administrador' : 'Cliente';
+  if (sidebarName)   sidebarName.textContent   = currentUser.displayName;
+  if (sidebarRole)   sidebarRole.textContent   = isAdmin ? 'Administrador' : 'Cliente';
   if (sidebarAvatar) sidebarAvatar.textContent = initials;
 
-  // Grupo DB Softwares (admin) no menu
-  const nocGroup = document.getElementById('nocGroup');
-  const nocDiv   = document.getElementById('nocDivider');
-  if (nocGroup) nocGroup.style.display = isAdmin ? 'block' : 'none';
-  if (nocDiv)   nocDiv.style.display   = isAdmin ? 'block' : 'none';
+  // Itens admin dentro do grupo Gestão
+  ['navGestao', 'navMonitor', 'navAdmin'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isAdmin ? 'flex' : 'none';
+  });
 
   // Filtro de cliente na filters-bar (admin vê todos, cliente não)
   const filterBar = document.querySelector('.filters-bar');
