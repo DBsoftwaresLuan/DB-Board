@@ -508,10 +508,53 @@ function renderNocViews() {
 }
 
 // ==================== EVENTOS E INICIALIZAÇÃO ====================
-function toggleMode() {
-  const isNoc = document.getElementById('modeToggle').checked;
-  currentMode = isNoc ? 'noc' : 'cliente';
 
+// ==================== MODE SWITCHER (NOVO) ====================
+function initModeSwitcher() {
+  const clienteOption = document.getElementById('modeClienteOption');
+  const nocOption = document.getElementById('modeNocOption');
+  const sliderBg = document.getElementById('modeSliderBg');
+  const modeToggle = document.getElementById('modeToggle');
+  
+  // Set initial state
+  updateModeUI(currentMode === 'noc');
+  
+  clienteOption.addEventListener('click', () => {
+    if (currentMode !== 'cliente') {
+      currentMode = 'cliente';
+      modeToggle.checked = false;
+      updateModeUI(false);
+      applyModeChange(false);
+    }
+  });
+  
+  nocOption.addEventListener('click', () => {
+    if (currentMode !== 'noc') {
+      currentMode = 'noc';
+      modeToggle.checked = true;
+      updateModeUI(true);
+      applyModeChange(true);
+    }
+  });
+}
+
+function updateModeUI(isNoc) {
+  const clienteOption = document.getElementById('modeClienteOption');
+  const nocOption = document.getElementById('modeNocOption');
+  const sliderBg = document.getElementById('modeSliderBg');
+  
+  if (isNoc) {
+    clienteOption.classList.remove('active');
+    nocOption.classList.add('active');
+    sliderBg.classList.add('noc-active');
+  } else {
+    clienteOption.classList.add('active');
+    nocOption.classList.remove('active');
+    sliderBg.classList.remove('noc-active');
+  }
+}
+
+function applyModeChange(isNoc) {
   // Textos e badges de modo
   document.getElementById('modeText').innerText = isNoc ? 'Modo NOC' : 'Modo Cliente';
   document.getElementById('roleBadge').innerHTML = isNoc ? '<i class="fas fa-shield-halved"></i> NOC Operador' : '<i class="fas fa-eye"></i> Cliente';
@@ -531,7 +574,7 @@ function toggleMode() {
   // Adiciona filtro de cliente no modo NOC
   let filterBar = document.querySelector('.filters-bar');
   let existingFilter = document.getElementById('clienteFilterGroup');
-  if (currentMode === 'noc' && !existingFilter) {
+  if (isNoc && !existingFilter) {
     const div = document.createElement('div');
     div.className = 'filter-group';
     div.id = 'clienteFilterGroup';
@@ -545,13 +588,40 @@ function toggleMode() {
       renderExceptions();
       renderCharts();
     });
-  } else if (currentMode !== 'noc' && existingFilter) {
+  } else if (!isNoc && existingFilter) {
     existingFilter.remove();
   }
   
-  if (currentMode === 'noc') renderNocViews();
+  // Update user stats based on mode
+  updateUserStats(isNoc);
+  
+  if (isNoc) renderNocViews();
   renderStats();
   renderExecutionsTable();
+}
+
+function updateUserStats(isNoc) {
+  const filtered = filterExecutions();
+  const total = filtered.length;
+  const successRate = total ? ((filtered.filter(e => e.status === "sucesso").length / total) * 100).toFixed(0) : 0;
+  const alerts = isNoc ? 5 : 3;
+  
+  const execCountEl = document.getElementById('userExecCount');
+  const successRateEl = document.getElementById('userSuccessRate');
+  const alertCountEl = document.getElementById('userAlertCount');
+  const quickNotifBadge = document.getElementById('quickNotifBadge');
+  
+  if (execCountEl) execCountEl.textContent = total;
+  if (successRateEl) successRateEl.textContent = successRate + '%';
+  if (alertCountEl) alertCountEl.textContent = alerts;
+  if (quickNotifBadge) quickNotifBadge.textContent = alerts;
+}
+
+function toggleMode() {
+  const isNoc = document.getElementById('modeToggle').checked;
+  currentMode = isNoc ? 'noc' : 'cliente';
+  updateModeUI(isNoc);
+  applyModeChange(isNoc);
 }
 
 function changeView(viewId) {
@@ -1621,6 +1691,8 @@ function initAutomacaoFilters() {
 
 function init() {
   initEventListeners();
+  initModeSwitcher();
+  updateUserStats(false);
   changeView('executions');
   renderStats();
   renderExecutionsTable();

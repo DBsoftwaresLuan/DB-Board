@@ -235,40 +235,67 @@ body {
 }
 
 /* =====================================================================
-   SIDEBAR FOOTER
+   SIDEBAR FOOTER - USER PROFILE ENHANCED
    ===================================================================== */
 .sidebar-footer {
   flex-shrink: 0;
-  padding: 12px 14px 14px;
+  padding: 12px 12px 14px;
   border-top: 1px solid rgba(255,255,255,0.07);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
-.sidebar-user-row {
+/* User Card */
+.sidebar-user-card {
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-user-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 6px;
-  border-radius: var(--radius-sm);
-  cursor: default;
+  margin-bottom: 12px;
+}
+
+.sidebar-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .sidebar-avatar {
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--db-blue) 0%, var(--db-blue-dark) 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.02em;
-  flex-shrink: 0;
-  border: 1.5px solid rgba(189,160,126,0.4);
+  border: 2px solid rgba(189,160,126,0.5);
+}
+
+.sidebar-status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background: #22C55E;
+  border-radius: 50%;
+  border: 2px solid #15213F;
+  animation: pulse-online 2s infinite;
+}
+
+@keyframes pulse-online {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
 }
 
 .sidebar-user-info {
@@ -277,37 +304,201 @@ body {
 }
 
 .sidebar-user-name {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255,255,255,0.95);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .sidebar-user-role {
-  font-size: 0.66rem;
-  color: rgba(255,255,255,0.38);
-  margin-top: 1px;
+  font-size: 0.68rem;
+  color: var(--db-gold-light);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.sidebar-user-menu-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.sidebar-user-menu-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.8);
+}
+
+/* User Stats */
+.sidebar-user-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 4px;
+  background: rgba(0,0,0,0.15);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+}
+
+.sidebar-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.sidebar-stat-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  line-height: 1;
+}
+
+.sidebar-stat-value.sidebar-stat-success {
+  color: #22C55E;
+}
+
+.sidebar-stat-label {
+  font-size: 0.58rem;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 3px;
+}
+
+.sidebar-stat-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255,255,255,0.1);
+}
+
+/* Quick Actions */
+.sidebar-quick-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.sidebar-action-btn {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.6);
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.sidebar-action-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.sidebar-action-btn.sidebar-action-danger:hover {
+  background: rgba(192,57,43,0.2);
+  color: #EF4444;
+  border-color: rgba(239,68,68,0.3);
+}
+
+.sidebar-action-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--db-danger);
+  color: white;
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* Footer Divider */
+.sidebar-footer-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  margin: 2px 0;
+}
+
+/* Mode Switcher */
+.sidebar-mode-switcher {
+  display: flex;
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.mode-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.mode-option i {
+  font-size: 0.7rem;
+}
+
+.mode-option.active {
+  color: white;
+}
+
+.mode-option:hover:not(.active) {
+  color: rgba(255,255,255,0.7);
+}
+
+.mode-slider-bg {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  height: calc(100% - 6px);
+  background: linear-gradient(135deg, var(--db-blue) 0%, var(--db-blue-dark) 100%);
+  border-radius: 6px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(62,86,158,0.3);
+}
+
+.mode-slider-bg.noc-active {
+  transform: translateX(100%);
+  background: linear-gradient(135deg, var(--db-gold) 0%, #9A7B5C 100%);
+  box-shadow: 0 2px 8px rgba(189,160,126,0.3);
+}
+
+/* Legacy support - keep old classes but update */
+.sidebar-user-row {
+  display: none; /* Hidden, replaced by new layout */
 }
 
 .sidebar-mode-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
-  font-size: 0.79rem;
-  color: rgba(255,255,255,0.55);
-  cursor: pointer;
+  display: none; /* Hidden, replaced by new switcher */
 }
 
 .sidebar-mode-icon {
-  font-size: 0.8rem;
-  color: var(--db-gold-light);
-  flex-shrink: 0;
+  display: none;
 }
 
 /* Toggle switch */

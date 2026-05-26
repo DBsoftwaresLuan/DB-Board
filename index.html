@@ -117,21 +117,78 @@
 
     <!-- Footer da sidebar: usuário + modo toggle -->
     <div class="sidebar-footer">
-      <div class="sidebar-user-row">
-        <div class="sidebar-avatar" id="sidebarAvatar">DB</div>
-        <div class="sidebar-user-info">
-          <div class="sidebar-user-name" id="sidebarUserName">Administrador</div>
-          <div class="sidebar-user-role" id="sidebarUserRole">NOC Operador</div>
+      <!-- Card do usuário expandido -->
+      <div class="sidebar-user-card">
+        <div class="sidebar-user-header">
+          <div class="sidebar-avatar-wrapper">
+            <div class="sidebar-avatar" id="sidebarAvatar">DB</div>
+            <span class="sidebar-status-dot" id="statusDot" title="Online"></span>
+          </div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarUserName">Usuário</div>
+            <div class="sidebar-user-role" id="sidebarUserRole">Cliente</div>
+          </div>
+          <button class="sidebar-user-menu-btn" id="userMenuBtn" title="Menu do usuário">
+            <i class="fas fa-ellipsis-vertical"></i>
+          </button>
+        </div>
+        
+        <!-- Mini stats do usuário -->
+        <div class="sidebar-user-stats">
+          <div class="sidebar-stat-item">
+            <span class="sidebar-stat-value" id="userExecCount">127</span>
+            <span class="sidebar-stat-label">Execuções</span>
+          </div>
+          <div class="sidebar-stat-divider"></div>
+          <div class="sidebar-stat-item">
+            <span class="sidebar-stat-value sidebar-stat-success" id="userSuccessRate">94%</span>
+            <span class="sidebar-stat-label">Sucesso</span>
+          </div>
+          <div class="sidebar-stat-divider"></div>
+          <div class="sidebar-stat-item">
+            <span class="sidebar-stat-value" id="userAlertCount">3</span>
+            <span class="sidebar-stat-label">Alertas</span>
+          </div>
+        </div>
+
+        <!-- Ações rápidas -->
+        <div class="sidebar-quick-actions">
+          <button class="sidebar-action-btn" onclick="changeView('notificacoes')" title="Notificações">
+            <i class="fas fa-bell"></i>
+            <span class="sidebar-action-badge" id="quickNotifBadge">3</span>
+          </button>
+          <button class="sidebar-action-btn" onclick="changeView('configuracoes')" title="Configurações">
+            <i class="fas fa-gear"></i>
+          </button>
+          <button class="sidebar-action-btn" onclick="changeView('relatorios')" title="Relatórios">
+            <i class="fas fa-file-chart-column"></i>
+          </button>
+          <button class="sidebar-action-btn sidebar-action-danger" id="btnLogoutSidebar" title="Sair"
+            onclick="(function(){ sessionStorage.clear(); window.location.href='login.html'; })()">
+            <i class="fas fa-right-from-bracket"></i>
+          </button>
         </div>
       </div>
-      <div class="sidebar-mode-row">
-        <i class="fas fa-shield-halved sidebar-mode-icon" id="modeIcon"></i>
-        <span id="modeText">Modo NOC</span>
-        <label class="switch" style="margin-left: auto;">
-          <input type="checkbox" id="modeToggle">
-          <span class="slider round"></span>
-        </label>
+
+      <!-- Separador visual -->
+      <div class="sidebar-footer-divider"></div>
+
+      <!-- Toggle de modo aprimorado -->
+      <div class="sidebar-mode-switcher" id="modeSwitcher">
+        <div class="mode-option" id="modeClienteOption" data-mode="cliente">
+          <i class="fas fa-user"></i>
+          <span>Cliente</span>
+        </div>
+        <div class="mode-option" id="modeNocOption" data-mode="noc">
+          <i class="fas fa-shield-halved"></i>
+          <span>NOC</span>
+        </div>
+        <div class="mode-slider-bg" id="modeSliderBg"></div>
       </div>
+      
+      <!-- Toggle hidden para compatibilidade -->
+      <input type="checkbox" id="modeToggle" style="display:none;">
+      <span id="modeText" style="display:none;">Modo Cliente</span>
     </div>
 
   </aside>
