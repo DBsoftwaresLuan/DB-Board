@@ -1,17 +1,34 @@
 // ==================== DADOS MOCK - ROBÔS E EXECUÇÕES ====================
 
-// Lista de robôs cadastrados
+// Lista de robôs cadastrados (expandida)
 const robos = [
-  { id: 1, nome: "Validador NF-e", cliente: "Indústria Machado", tipo: "Validação", slaSegundos: 45, horarioCritico: "14-15", ativo: true },
-  { id: 2, nome: "Integrador ERP", cliente: "Indústria Machado", tipo: "Integração", slaSegundos: 30, ativo: true },
-  { id: 3, nome: "Gestor de Estoque", cliente: "Logística Rápida", tipo: "Processamento", slaSegundos: 60, ativo: true },
-  { id: 4, nome: "Processador de Boletos", cliente: "Financeira Norte", tipo: "Financeiro", slaSegundos: 90, horarioCritico: "16-18", ativo: true },
-  { id: 5, nome: "Extrator de Notas", cliente: "Varejo Sul", tipo: "Coleta", slaSegundos: 25, ativo: true },
-  { id: 6, nome: "Conciliador Bancário", cliente: "Financeira Norte", tipo: "Conciliação", slaSegundos: 120, ativo: true },
-  { id: 7, nome: "Emissor de Certificados", cliente: "Indústria Machado", tipo: "Geração", slaSegundos: 15, ativo: true },
-  { id: 8, nome: "Monitor de Preços", cliente: "Varejo Sul", tipo: "Web Scraping", slaSegundos: 180, ativo: true },
-  { id: 9, nome: "Importador XML", cliente: "Logística Rápida", tipo: "Importação", slaSegundos: 40, ativo: true },
-  { id: 10, nome: "Gerador de Relatórios", cliente: "DB Interno", tipo: "Reporting", slaSegundos: 300, ativo: true }
+  // Indústria Machado S.A
+  { id: 1,  nome: "Validador NF-e",           cliente: "Indústria Machado S.A",  tipo: "Validação",    plataforma: "UiPath",        slaSegundos: 45,  horarioCritico: "14-15", statusRobo: "ativo",   descricao: "Valida notas fiscais eletrônicas antes de registrar no ERP",            icone: "fa-file-invoice", versao: "3.2.1" },
+  { id: 2,  nome: "Integrador ERP",           cliente: "Indústria Machado S.A",  tipo: "Integração",   plataforma: "Automation Anywhere", slaSegundos: 30, statusRobo: "ativo", descricao: "Sincroniza dados entre sistemas SAP e Oracle",                            icone: "fa-arrows-rotate",versao: "2.0.4" },
+  { id: 3,  nome: "Emissor de Certificados",  cliente: "Indústria Machado S.A",  tipo: "Geração",      plataforma: "Power Automate",slaSegundos: 15,  statusRobo: "ativo",   descricao: "Emite certificados de qualidade após aprovação de lote",                  icone: "fa-certificate",  versao: "1.1.0" },
+  { id: 4,  nome: "Auditor Fiscal",           cliente: "Indústria Machado S.A",  tipo: "Auditoria",    plataforma: "UiPath",        slaSegundos: 120, statusRobo: "pausado", descricao: "Revisa automaticamente obrigações fiscais e gera relatório de auditoria", icone: "fa-magnifying-glass-chart", versao: "1.3.2" },
+
+  // Logística Rápida Ltda
+  { id: 5,  nome: "Gestor de Estoque",        cliente: "Logística Rápida Ltda",  tipo: "Processamento",plataforma: "UiPath",        slaSegundos: 60,  statusRobo: "ativo",   descricao: "Atualiza níveis de estoque em tempo real com base nas entradas/saídas",  icone: "fa-boxes-stacked",versao: "4.0.1" },
+  { id: 6,  nome: "Importador XML",           cliente: "Logística Rápida Ltda",  tipo: "Importação",   plataforma: "Blue Prism",    slaSegundos: 40,  statusRobo: "ativo",   descricao: "Importa arquivos XML de fornecedores e popula banco de dados",            icone: "fa-file-code",    versao: "2.2.0" },
+  { id: 7,  nome: "Rastreador de Entregas",   cliente: "Logística Rápida Ltda",  tipo: "Monitoramento",plataforma: "UiPath",        slaSegundos: 20,  statusRobo: "ativo",   descricao: "Monitora status de entregas em múltiplas transportadoras",                icone: "fa-truck-fast",   versao: "3.1.0" },
+  { id: 8,  nome: "Classificador de Cargas",  cliente: "Logística Rápida Ltda",  tipo: "Classificação",plataforma: "Power Automate",slaSegundos: 35,  statusRobo: "erro",    descricao: "Classifica cargas por rota, peso e prioridade automaticamente",           icone: "fa-layer-group",  versao: "1.0.3" },
+
+  // Financeira Norte S.A
+  { id: 9,  nome: "Processador de Boletos",   cliente: "Financeira Norte S.A",   tipo: "Financeiro",   plataforma: "Automation Anywhere", slaSegundos: 90,  horarioCritico: "16-18", statusRobo: "ativo", descricao: "Processa e registra boletos bancários no sistema de cobrança", icone: "fa-barcode", versao: "5.3.0" },
+  { id: 10, nome: "Conciliador Bancário",     cliente: "Financeira Norte S.A",   tipo: "Conciliação",  plataforma: "Blue Prism",    slaSegundos: 120, statusRobo: "ativo",   descricao: "Concilia extratos bancários com movimentações do ERP financeiro",         icone: "fa-scale-balanced", versao: "2.4.1" },
+  { id: 11, nome: "Analisador de Crédito",    cliente: "Financeira Norte S.A",   tipo: "Análise",      plataforma: "UiPath",        slaSegundos: 200, statusRobo: "ativo",   descricao: "Analisa proposta de crédito e consulta bureaus externos (Serasa/SPC)",    icone: "fa-chart-pie",    versao: "3.0.0" },
+  { id: 12, nome: "Gerador de DARFs",         cliente: "Financeira Norte S.A",   tipo: "Geração",      plataforma: "Power Automate",slaSegundos: 60,  statusRobo: "pausado", descricao: "Calcula e emite DARFs de tributos federais automaticamente",              icone: "fa-receipt",      versao: "1.2.1" },
+
+  // Varejo Sul Comércio
+  { id: 13, nome: "Extrator de Notas",        cliente: "Varejo Sul Comércio",    tipo: "Coleta",       plataforma: "UiPath",        slaSegundos: 25,  statusRobo: "ativo",   descricao: "Extrai notas fiscais de portais estaduais e consolida em banco de dados", icone: "fa-file-export",  versao: "2.1.4" },
+  { id: 14, nome: "Monitor de Preços",        cliente: "Varejo Sul Comércio",    tipo: "Web Scraping", plataforma: "UiPath",        slaSegundos: 180, statusRobo: "ativo",   descricao: "Monitora preços de concorrentes em e-commerces e marketplaces",           icone: "fa-tag",          versao: "4.2.0" },
+  { id: 15, nome: "Sincronizador E-commerce", cliente: "Varejo Sul Comércio",    tipo: "Integração",   plataforma: "Automation Anywhere", slaSegundos: 45, statusRobo: "ativo", descricao: "Sincroniza catálogo, preços e estoque entre WooCommerce e ERP",      icone: "fa-shop",         versao: "3.3.1" },
+  { id: 16, nome: "Processador de Devoluções",cliente: "Varejo Sul Comércio",    tipo: "Processamento",plataforma: "Blue Prism",    slaSegundos: 80,  statusRobo: "erro",    descricao: "Processa solicitações de devolução e aciona fluxo de reembolso",          icone: "fa-rotate-left",  versao: "2.0.2" },
+
+  // DB Interno
+  { id: 17, nome: "Gerador de Relatórios",    cliente: "DB Softwares (Interno)", tipo: "Reporting",    plataforma: "Power Automate",slaSegundos: 300, statusRobo: "ativo",   descricao: "Consolida métricas de todos os clientes e gera relatório executivo diário",icone: "fa-chart-column", versao: "1.5.0" },
+  { id: 18, nome: "Monitor de Infraestrutura",cliente: "DB Softwares (Interno)", tipo: "Monitoramento",plataforma: "UiPath",        slaSegundos: 10,  statusRobo: "ativo",   descricao: "Monitora disponibilidade dos servidores e envia alertas via e-mail",      icone: "fa-server",       versao: "2.1.0" },
 ];
 
 // Função para gerar data aleatória nos últimos N dias
@@ -546,6 +563,17 @@ function changeView(viewId) {
     renderIASuggestions();
     renderCharts();
   }
+  if (viewId === 'automations') {
+    renderAutomacoes();
+    setTimeout(initAutomacaoFilters, 50);
+  }
+  if (viewId === 'sla') {
+    renderStats();
+    renderCharts();
+  }
+  if (viewId === 'insights') {
+    renderInsightsView();
+  }
   if (viewId === 'admin' && currentMode === 'noc') renderNocViews();
 }
 
@@ -576,6 +604,395 @@ function initEventListeners() {
   const robosUnicos = getUniqueRobos();
   processSelect.innerHTML = '<option value="all">Todos os robôs</option>' + robosUnicos.map(r => `<option value="${r.nome}">${r.nome}</option>`).join('');
 }
+
+// ==================== VIEW: INSIGHTS ====================
+function renderInsightsView() {
+  const sugestoes = gerarSugestoesIA();
+  const excecoes = detectarExcecoesRecorrentes();
+  const tendencias = calcularTendencias();
+  const filtered = filterExecutions();
+  const totalExecs = filtered.length;
+  const totalFalhas = filtered.filter(e => e.status === 'falha').length;
+
+  const iconMap = { alerta: 'fa-triangle-exclamation', otimizacao: 'fa-gauge-high', correcao: 'fa-wrench', preditivo: 'fa-chart-line' };
+  const colorMap = { alerta: 'var(--db-danger)', otimizacao: 'var(--db-warning)', correcao: 'var(--db-blue)', preditivo: 'var(--db-success)' };
+
+  const container = document.getElementById('insightsFullList');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="insights-summary-grid">
+      <div class="insight-kpi">
+        <i class="fas fa-play-circle"></i>
+        <span class="ikpi-num">${totalExecs}</span>
+        <span class="ikpi-lbl">Execuções analisadas</span>
+      </div>
+      <div class="insight-kpi">
+        <i class="fas fa-triangle-exclamation" style="color:var(--db-danger)"></i>
+        <span class="ikpi-num" style="color:var(--db-danger)">${totalFalhas}</span>
+        <span class="ikpi-lbl">Falhas detectadas</span>
+      </div>
+      <div class="insight-kpi">
+        <i class="fas fa-clock" style="color:var(--db-warning)"></i>
+        <span class="ikpi-num">${tendencias.piorHorario}</span>
+        <span class="ikpi-lbl">Pior horário</span>
+      </div>
+      <div class="insight-kpi">
+        <i class="fas fa-robot" style="color:var(--db-blue)"></i>
+        <span class="ikpi-num">${tendencias.robosCriticos.length}</span>
+        <span class="ikpi-lbl">Robôs críticos</span>
+      </div>
+    </div>
+
+    <div class="insights-section-label">Alertas e Recomendacoes IA</div>
+    <div class="insights-cards-list">
+      ${sugestoes.map(s => `
+        <div class="insight-full-card">
+          <div class="insight-full-icon" style="background:${colorMap[s.tipo]}20;color:${colorMap[s.tipo]}">
+            <i class="fas ${iconMap[s.tipo] || 'fa-brain'}"></i>
+          </div>
+          <div class="insight-full-body">
+            <div class="insight-full-title">${s.titulo.replace(/[^\w\s\u00C0-\u017F\-\:\.%\+]/g, '')}</div>
+            <div class="insight-full-desc">${s.descricao}</div>
+            <div class="insight-full-acao"><i class="fas fa-arrow-right"></i> ${s.acao}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="insights-section-label" style="margin-top:24px">Excecoes Recorrentes Detectadas</div>
+    <div class="insights-excecoes-list">
+      ${excecoes.map(ex => `
+        <div class="insight-excecao-row">
+          <div class="ier-icon"><i class="fas fa-bug"></i></div>
+          <div class="ier-body">
+            <div class="ier-tipo">${ex.tipo}</div>
+            <div class="ier-acao">${ex.acaoSugerida}</div>
+          </div>
+          <div class="ier-count">
+            <span class="ier-num">${ex.count}</span>
+            <span class="ier-var ${ex.variacao > 0 ? 'trend-down' : 'trend-up'}">${ex.variacao > 0 ? '+' : ''}${ex.variacao}%</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="insights-section-label" style="margin-top:24px">Robos em Situacao Critica</div>
+    <div class="insights-excecoes-list">
+      ${tendencias.robosCriticos.map(nome => `
+        <div class="insight-excecao-row">
+          <div class="ier-icon" style="background:var(--db-danger-bg);color:var(--db-danger)"><i class="fas fa-robot"></i></div>
+          <div class="ier-body">
+            <div class="ier-tipo">${nome}</div>
+            <div class="ier-acao">Robô identificado com padrão de falha crítico pela análise preditiva da IA.</div>
+          </div>
+          <span class="status-badge status-fail">Critico</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ==================== VIEW: AUTOMAÇÕES ====================
+
+let robotsBarChart = null;
+let robotsSuccessChart = null;
+
+function getRoboStats(robo) {
+  const execsRobo = executionsData.filter(e => {
+    const diff = (new Date() - new Date(e.datetime)) / (1000 * 3600 * 24);
+    return e.roboNome === robo.nome && diff <= 7;
+  });
+  const total = execsRobo.length;
+  const sucesso = execsRobo.filter(e => e.status === 'sucesso').length;
+  const falhas = total - sucesso;
+  const taxaSucesso = total ? ((sucesso / total) * 100).toFixed(1) : '0.0';
+  const ultimaExec = execsRobo.length ? new Date(execsRobo[0].datetime) : null;
+  const tempoMedio = total ? (execsRobo.reduce((a, e) => a + e.duracaoSegundos, 0) / total).toFixed(0) : 0;
+  return { total, sucesso, falhas, taxaSucesso, ultimaExec, tempoMedio };
+}
+
+function renderAutomacaoStats() {
+  const totalRobos = robos.length;
+  const ativos = robos.filter(r => r.statusRobo === 'ativo').length;
+  const pausados = robos.filter(r => r.statusRobo === 'pausado').length;
+  const comErro = robos.filter(r => r.statusRobo === 'erro').length;
+  const clientes = [...new Set(robos.map(r => r.cliente))].length;
+
+  document.getElementById('automacaoStatsGrid').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-title"><i class="fas fa-robot"></i> Total de Robôs</div>
+      <div class="stat-number">${totalRobos}</div>
+      <div class="stat-trend">${clientes} clientes atendidos</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title"><i class="fas fa-circle-check" style="color:var(--db-success)"></i> Ativos</div>
+      <div class="stat-number" style="color:var(--db-success)">${ativos}</div>
+      <div class="stat-trend trend-up">${((ativos/totalRobos)*100).toFixed(0)}% da frota operacional</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title"><i class="fas fa-circle-pause" style="color:var(--db-warning)"></i> Pausados</div>
+      <div class="stat-number" style="color:var(--db-warning)">${pausados}</div>
+      <div class="stat-trend">Aguardando reativação</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title"><i class="fas fa-circle-xmark" style="color:var(--db-danger)"></i> Com Erro</div>
+      <div class="stat-number" style="color:var(--db-danger)">${comErro}</div>
+      <div class="stat-trend trend-down">Requer intervenção NOC</div>
+    </div>
+  `;
+}
+
+function getFilteredRobos() {
+  const cliente = document.getElementById('automacaoClienteFilter')?.value || 'all';
+  const tipo = document.getElementById('automacaoTipoFilter')?.value || 'all';
+  const status = document.getElementById('automacaoStatusFilter')?.value || 'all';
+  const search = (document.getElementById('automacaoSearch')?.value || '').toLowerCase();
+
+  return robos.filter(r => {
+    if (cliente !== 'all' && r.cliente !== cliente) return false;
+    if (tipo !== 'all' && r.tipo !== tipo) return false;
+    if (status !== 'all' && r.statusRobo !== status) return false;
+    if (search && !r.nome.toLowerCase().includes(search) && !r.descricao.toLowerCase().includes(search)) return false;
+    return true;
+  });
+}
+
+function renderRoboCards() {
+  const filtered = getFilteredRobos();
+  const grid = document.getElementById('robotsGrid');
+  if (!grid) return;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="robots-empty"><i class="fas fa-robot"></i><p>Nenhum robô encontrado com os filtros aplicados.</p></div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(r => {
+    const stats = getRoboStats(r);
+    const statusConfig = {
+      ativo:   { cls: 'robot-status-ativo',   label: 'Ativo',   icon: 'fa-circle-check' },
+      pausado: { cls: 'robot-status-pausado',  label: 'Pausado', icon: 'fa-circle-pause' },
+      erro:    { cls: 'robot-status-erro',     label: 'Erro',    icon: 'fa-circle-xmark' }
+    };
+    const s = statusConfig[r.statusRobo] || statusConfig.ativo;
+    const taxaNum = parseFloat(stats.taxaSucesso);
+    const barColor = taxaNum >= 90 ? 'var(--db-success)' : taxaNum >= 75 ? 'var(--db-warning)' : 'var(--db-danger)';
+    const ultimaStr = stats.ultimaExec ? stats.ultimaExec.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : 'Sem dados';
+
+    return `
+      <div class="robot-card" data-id="${r.id}">
+        <div class="robot-card-header">
+          <div class="robot-icon-wrap">
+            <i class="fas ${r.icone}"></i>
+          </div>
+          <div class="robot-header-info">
+            <div class="robot-name">${r.nome}</div>
+            <div class="robot-meta">${r.plataforma} &bull; v${r.versao}</div>
+          </div>
+          <span class="robot-status-badge ${s.cls}"><i class="fas ${s.icon}"></i> ${s.label}</span>
+        </div>
+        <div class="robot-desc">${r.descricao}</div>
+        <div class="robot-tags">
+          <span class="robot-tag tag-tipo">${r.tipo}</span>
+          <span class="robot-tag tag-cliente">${r.cliente.split(' ').slice(0,2).join(' ')}</span>
+          <span class="robot-tag tag-sla">SLA ${r.slaSegundos}s</span>
+        </div>
+        <div class="robot-stats-row">
+          <div class="robot-stat">
+            <span class="robot-stat-num">${stats.total}</span>
+            <span class="robot-stat-lbl">Execuções</span>
+          </div>
+          <div class="robot-stat">
+            <span class="robot-stat-num" style="color:${barColor}">${stats.taxaSucesso}%</span>
+            <span class="robot-stat-lbl">Sucesso</span>
+          </div>
+          <div class="robot-stat">
+            <span class="robot-stat-num">${stats.falhas}</span>
+            <span class="robot-stat-lbl">Falhas</span>
+          </div>
+          <div class="robot-stat">
+            <span class="robot-stat-num">${stats.tempoMedio}s</span>
+            <span class="robot-stat-lbl">Tempo médio</span>
+          </div>
+        </div>
+        <div class="robot-progress-bar">
+          <div class="robot-progress-fill" style="width:${stats.taxaSucesso}%; background:${barColor}"></div>
+        </div>
+        <div class="robot-footer">
+          <span class="robot-last-exec"><i class="fas fa-clock"></i> ${ultimaStr}</span>
+          <button class="btn-robo-detalhe" onclick="showRoboModal(${r.id})"><i class="fas fa-eye"></i> Detalhes</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderRoboCharts() {
+  const filtered = getFilteredRobos().slice(0, 10);
+  const labels = filtered.map(r => r.nome.length > 16 ? r.nome.substring(0, 14) + '…' : r.nome);
+
+  // Execuções por robô
+  const execsPorRobo = filtered.map(r => getRoboStats(r).total);
+  const ctx1 = document.getElementById('robotsChart');
+  if (ctx1) {
+    if (robotsBarChart) robotsBarChart.destroy();
+    robotsBarChart = new Chart(ctx1.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Execuções (7d)',
+          data: execsPorRobo,
+          backgroundColor: 'rgba(62,86,158,0.75)',
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 2 } } }
+      }
+    });
+  }
+
+  // Taxa de sucesso por robô
+  const taxas = filtered.map(r => parseFloat(getRoboStats(r).taxaSucesso));
+  const ctx2 = document.getElementById('robotsSuccessChart');
+  if (ctx2) {
+    if (robotsSuccessChart) robotsSuccessChart.destroy();
+    robotsSuccessChart = new Chart(ctx2.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Taxa de sucesso (%)',
+          data: taxas,
+          backgroundColor: taxas.map(v => v >= 90 ? 'rgba(31,122,77,0.75)' : v >= 75 ? 'rgba(196,125,10,0.75)' : 'rgba(192,57,43,0.75)'),
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } }
+      }
+    });
+  }
+}
+
+function renderRoboDetailTable() {
+  const filtered = getFilteredRobos();
+  const tbody = document.getElementById('robotsDetailBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  filtered.forEach(r => {
+    const stats = getRoboStats(r);
+    const statusConfig = {
+      ativo:   { cls: 'status-success', label: 'Ativo'   },
+      pausado: { cls: 'status-warning', label: 'Pausado' },
+      erro:    { cls: 'status-fail',    label: 'Erro'    }
+    };
+    const s = statusConfig[r.statusRobo] || statusConfig.ativo;
+    const taxa = parseFloat(stats.taxaSucesso);
+    const taxaCls = taxa >= 90 ? 'trend-up' : taxa >= 75 ? '' : 'trend-down';
+    const row = tbody.insertRow();
+    row.innerHTML = `
+      <td><strong>${r.nome}</strong><br><small style="color:var(--db-text-muted)">v${r.versao}</small></td>
+      <td>${r.cliente}</td>
+      <td><span class="robot-tag tag-tipo" style="display:inline-block">${r.tipo}</span></td>
+      <td><span class="robot-tag" style="display:inline-block;background:var(--db-bg);color:var(--db-text-muted);border:1px solid var(--db-border)">${r.plataforma}</span></td>
+      <td>${r.slaSegundos}s</td>
+      <td>${stats.total}</td>
+      <td><span class="${taxaCls}" style="font-weight:700">${stats.taxaSucesso}%</span></td>
+      <td style="font-size:0.78rem;color:var(--db-text-muted)">${stats.ultimaExec ? stats.ultimaExec.toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+      <td><span class="status-badge ${s.cls}">${s.label}</span></td>
+      <td><button class="btn-secondary" style="padding:4px 10px;font-size:0.7rem" onclick="showRoboModal(${r.id})"><i class="fas fa-eye"></i></button></td>
+    `;
+  });
+}
+
+function populateAutomacaoFilters() {
+  const clientes = [...new Set(robos.map(r => r.cliente))];
+  const tipos = [...new Set(robos.map(r => r.tipo))].sort();
+
+  const cSel = document.getElementById('automacaoClienteFilter');
+  if (cSel) cSel.innerHTML = '<option value="all">Todos os clientes</option>' + clientes.map(c => `<option value="${c}">${c}</option>`).join('');
+
+  const tSel = document.getElementById('automacaoTipoFilter');
+  if (tSel) tSel.innerHTML = '<option value="all">Todos os tipos</option>' + tipos.map(t => `<option value="${t}">${t}</option>`).join('');
+}
+
+function showRoboModal(id) {
+  const r = robos.find(x => x.id === id);
+  if (!r) return;
+  const stats = getRoboStats(r);
+  const taxa = parseFloat(stats.taxaSucesso);
+  const statusLabel = { ativo: 'Ativo', pausado: 'Pausado', erro: 'Com Erro' };
+  const statusBadge = { ativo: 'status-success', pausado: 'status-warning', erro: 'status-fail' };
+
+  document.getElementById('modalTitle').innerHTML = `<i class="fas ${r.icone}" style="color:var(--db-blue)"></i> ${r.nome}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-robot-grid">
+      <div class="modal-info-block">
+        <p><strong>Cliente:</strong> ${r.cliente}</p>
+        <p><strong>Tipo:</strong> ${r.tipo}</p>
+        <p><strong>Plataforma:</strong> ${r.plataforma}</p>
+        <p><strong>Versao:</strong> v${r.versao}</p>
+        <p><strong>SLA contratado:</strong> ${r.slaSegundos}s</p>
+        <p><strong>Status:</strong> <span class="status-badge ${statusBadge[r.statusRobo]}">${statusLabel[r.statusRobo]}</span></p>
+      </div>
+      <div class="modal-info-block">
+        <p><strong>Execucoes (7d):</strong> ${stats.total}</p>
+        <p><strong>Sucessos:</strong> <span style="color:var(--db-success);font-weight:700">${stats.sucesso}</span></p>
+        <p><strong>Falhas:</strong> <span style="color:var(--db-danger);font-weight:700">${stats.falhas}</span></p>
+        <p><strong>Taxa de sucesso:</strong> <span style="color:${taxa>=90?'var(--db-success)':taxa>=75?'var(--db-warning)':'var(--db-danger)'};font-weight:700">${stats.taxaSucesso}%</span></p>
+        <p><strong>Tempo medio:</strong> ${stats.tempoMedio}s</p>
+        <p><strong>Ultima execucao:</strong> ${stats.ultimaExec ? stats.ultimaExec.toLocaleString('pt-BR') : '—'}</p>
+      </div>
+    </div>
+    <hr>
+    <p style="font-size:0.82rem;color:var(--db-text-muted);margin-bottom:10px"><strong>Descricao:</strong> ${r.descricao}</p>
+    <div class="robot-progress-bar" style="margin-bottom:4px">
+      <div class="robot-progress-fill" style="width:${stats.taxaSucesso}%;background:${taxa>=90?'var(--db-success)':taxa>=75?'var(--db-warning)':'var(--db-danger)'}"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--db-text-muted)">
+      <span>0%</span><span>Taxa de sucesso: ${stats.taxaSucesso}%</span><span>100%</span>
+    </div>
+    <hr>
+    <div class="insight-ia" style="margin-top:8px">
+      <i class="fas fa-robot"></i> <strong>Analise IA:</strong><br>
+      ${taxa >= 90
+        ? 'Robô operando dentro dos parâmetros ideais. Performance excelente.'
+        : taxa >= 75
+        ? 'Taxa de sucesso abaixo do ideal. Recomenda-se revisão das regras de negócio e logs de erro.'
+        : 'Desempenho crítico detectado. Robô requer atenção imediata do time NOC. Verificar logs e ambiente de execução.'}
+    </div>
+  `;
+  document.getElementById('detailModal').style.display = 'block';
+}
+
+function renderAutomacoes() {
+  renderAutomacaoStats();
+  populateAutomacaoFilters();
+  renderRoboCards();
+  renderRoboCharts();
+  renderRoboDetailTable();
+}
+
+function initAutomacaoFilters() {
+  ['automacaoClienteFilter','automacaoTipoFilter','automacaoStatusFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', () => { renderRoboCards(); renderRoboCharts(); renderRoboDetailTable(); });
+  });
+  const search = document.getElementById('automacaoSearch');
+  if (search) search.addEventListener('input', () => { renderRoboCards(); renderRoboDetailTable(); });
+}
+
+// ==================== FIM VIEW AUTOMAÇÕES ====================
 
 function init() {
   initEventListeners();
