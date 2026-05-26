@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DB Board — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --db-blue: #3E569E;
+      --db-blue-dark: #2d3f78;
+      --db-blue-light: #e8ecf8;
+      --db-gold: #BDA07E;
+      --db-gold-light: #f5ece2;
+      --db-white: #ffffff;
+      --db-gray-light: #f4f6fb;
+      --db-gray: #6b7a99;
+      --db-gray-border: #dde3f0;
+      --db-text: #1a2240;
+      --db-shadow: 0 20px 60px rgba(62, 86, 158, 0.12);
+      --db-shadow-sm: 0 4px 16px rgba(62, 86, 158, 0.08);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--db-gray-light);
+      color: var(--db-text);
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Fundo decorativo */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      right: -120px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(62, 86, 158, 0.07) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(189, 160, 126, 0.09) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Card de login */
+    .login-wrapper {
+      width: 100%;
+      max-width: 460px;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-card {
+      background: var(--db-white);
+      border-radius: 28px;
+      padding: 48px 44px;
+      box-shadow: var(--db-shadow);
+      border: 1px solid var(--db-gray-border);
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Logo */
+    .login-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-logo img {
+      height: 64px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    /* Divider dourado */
+    .logo-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0;
+    }
+    .logo-divider::before,
+    .logo-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--db-gold);
+      opacity: 0.4;
+    }
+    .logo-divider span {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--db-gold);
+    }
+
+    /* Título */
+    .login-title {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .login-title h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--db-text);
+      letter-spacing: -0.02em;
+    }
+    .login-title h1 span {
+      color: var(--db-blue);
+    }
+    .login-title p {
+      font-size: 0.85rem;
+      color: var(--db-gray);
+      margin-top: 6px;
+    }
+
+    /* Formulário */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--db-text);
+      margin-bottom: 8px;
+      letter-spacing: 0.01em;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper i.input-icon {
+      position: absolute;
+      left: 16px;
+      color: var(--db-gray);
+      font-size: 0.9rem;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      border: 1.5px solid var(--db-gray-border);
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--db-text);
+      background: var(--db-gray-light);
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--db-blue);
+      background: var(--db-white);
+      box-shadow: 0 0 0 4px rgba(62, 86, 158, 0.08);
+    }
+
+    .input-wrapper input:focus + i.input-icon,
+    .input-wrapper:focus-within i.input-icon {
+      color: var(--db-blue);
+    }
+
+    .input-wrapper input::placeholder {
+      color: #b0bace;
+    }
+
+    /* Botão de mostrar senha */
+    .btn-toggle-pw {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--db-gray);
+      font-size: 0.9rem;
+      padding: 4px;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+    }
+    .btn-toggle-pw:hover { color: var(--db-blue); }
+
+    /* Mensagem de erro */
+    .error-message {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: #fff0ee;
+      border: 1px solid #f5c5be;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      color: #b83b2a;
+      margin-bottom: 20px;
+      animation: shake 0.3s ease;
+    }
+    .error-message.visible { display: flex; }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25%       { transform: translateX(-6px); }
+      75%       { transform: translateX(6px); }
+    }
+
+    /* Botão entrar */
+    .btn-login {
+      width: 100%;
+      padding: 15px;
+      background: var(--db-blue);
+      color: var(--db-white);
+      border: none;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      letter-spacing: 0.01em;
+      margin-top: 8px;
+      box-shadow: 0 6px 20px rgba(62, 86, 158, 0.3);
+    }
+
+    .btn-login:hover {
+      background: var(--db-blue-dark);
+      box-shadow: 0 8px 24px rgba(62, 86, 158, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgba(62, 86, 158, 0.25);
+    }
+
+    .btn-login:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Spinner de carregamento */
+    .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Rodapé do card */
+    .login-footer {
+      text-align: center;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--db-gray-border);
+    }
+
+    .login-footer p {
+      font-size: 0.75rem;
+      color: var(--db-gray);
+      line-height: 1.6;
+    }
+
+    .login-footer strong {
+      color: var(--db-blue);
+    }
+
+    /* Badge de segurança */
+    .security-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--db-blue-light);
+      color: var(--db-blue);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 30px;
+      margin-bottom: 12px;
+      letter-spacing: 0.03em;
+    }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+      .login-card {
+        padding: 36px 28px;
+        border-radius: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <img
+        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DB%20sem%20Fundo-xMiKrZ4SAqjeAw3agKmH5PaUpXXKAr.png"
+        alt="DB Softwares"
+      />
+    </div>
+
+    <!-- Divider -->
+    <div class="logo-divider">
+      <span>Acesso seguro</span>
+    </div>
+
+    <!-- Título -->
+    <div class="login-title">
+      <h1>DB <span>Board</span></h1>
+      <p>Camada de Observabilidade + IA</p>
+    </div>
+
+    <!-- Erro -->
+    <div class="error-message" id="errorMsg">
+      <i class="fas fa-exclamation-circle"></i>
+      <span id="errorText">Usuário ou senha incorretos.</span>
+    </div>
+
+    <!-- Formulário -->
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="username">Usuário</label>
+        <div class="input-wrapper">
+          <i class="fas fa-user input-icon"></i>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Seu nome de usuário"
+            autocomplete="username"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <div class="input-wrapper">
+          <i class="fas fa-lock input-icon"></i>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Sua senha"
+            autocomplete="current-password"
+            required
+          />
+          <button type="button" class="btn-toggle-pw" id="togglePw" aria-label="Mostrar ou ocultar senha">
+            <i class="fas fa-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login" id="submitBtn">
+        <span id="btnText"><i class="fas fa-arrow-right-to-bracket"></i> Entrar</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+    </form>
+
+    <!-- Rodapé -->
+    <div class="login-footer">
+      <div class="security-badge">
+        <i class="fas fa-shield-halved"></i> Ambiente protegido
+      </div>
+      <p>Acesso restrito a usuários autorizados.<br><strong>DB Softwares</strong> &mdash; Todos os direitos reservados.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ==========================================================
+  // Credenciais de acesso (frontend-only, para demonstração)
+  // ==========================================================
+  const CREDENTIALS = [
+    { username: "admin",   password: "dbboard2025", role: "noc"     },
+    { username: "cliente", password: "db@cliente",  role: "cliente" },
+    { username: "db",      password: "dbsoftwares", role: "noc"     }
+  ];
+
+  // Elementos
+  const form       = document.getElementById('loginForm');
+  const errorMsg   = document.getElementById('errorMsg');
+  const errorText  = document.getElementById('errorText');
+  const submitBtn  = document.getElementById('submitBtn');
+  const btnText    = document.getElementById('btnText');
+  const spinner    = document.getElementById('spinner');
+  const togglePw   = document.getElementById('togglePw');
+  const eyeIcon    = document.getElementById('eyeIcon');
+  const pwInput    = document.getElementById('password');
+
+  // Mostrar / ocultar senha
+  togglePw.addEventListener('click', () => {
+    const isText = pwInput.type === 'text';
+    pwInput.type = isText ? 'password' : 'text';
+    eyeIcon.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+  });
+
+  // Ocultar erro ao digitar
+  document.getElementById('username').addEventListener('input', hideError);
+  pwInput.addEventListener('input', hideError);
+
+  function hideError() {
+    errorMsg.classList.remove('visible');
+  }
+
+  function setLoading(on) {
+    submitBtn.disabled = on;
+    btnText.style.display = on ? 'none' : 'flex';
+    spinner.style.display = on ? 'block' : 'none';
+  }
+
+  function showError(msg) {
+    errorText.textContent = msg;
+    errorMsg.classList.remove('visible');
+    // Re-trigger animation
+    void errorMsg.offsetWidth;
+    errorMsg.classList.add('visible');
+  }
+
+  // Submit
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value.trim();
+    const password = pwInput.value;
+
+    if (!username || !password) {
+      showError('Preencha todos os campos para continuar.');
+      return;
+    }
+
+    setLoading(true);
+
+    // Simula latência de autenticação (500ms)
+    setTimeout(() => {
+      const match = CREDENTIALS.find(
+        c => c.username === username && c.password === password
+      );
+
+      if (match) {
+        // Salva sessão
+        sessionStorage.setItem('db_auth', 'true');
+        sessionStorage.setItem('db_role', match.role);
+        sessionStorage.setItem('db_user', match.username);
+        // Redireciona para o dashboard
+        window.location.href = 'index.html';
+      } else {
+        setLoading(false);
+        showError('Usuário ou senha incorretos. Tente novamente.');
+      }
+    }, 500);
+  });
+
+  // Se já está autenticado, vai direto para o dashboard
+  if (sessionStorage.getItem('db_auth') === 'true') {
+    window.location.href = 'index.html';
+  }
+</script>
+
+</body>
+</html>

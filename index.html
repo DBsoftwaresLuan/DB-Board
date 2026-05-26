@@ -1,77 +1,165 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>DB Board — Observabilidade + IA</title>
-  <!-- Fonts + ícones -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Chart.js -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="/styles/style.css">
+  <!-- Verificação de autenticação -->
+  <script>
+    (function () {
+      if (sessionStorage.getItem('db_auth') !== 'true') {
+        window.location.replace('login.html');
+      }
+    })();
+  </script>
 </head>
 <body>
 
 <div class="app-wrapper">
-  <!-- SIDEBAR -->
+
+  <!-- ============================================================
+       SIDEBAR
+  ============================================================ -->
   <aside class="sidebar" id="sidebar">
+
+    <!-- Logo + produto -->
     <div class="logo-area">
-      <h1>DB<span>Board</span></h1>
-      <div class="tagline">Camada de Observabilidade</div>
+      <img
+        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DB%20sem%20Fundo-xMiKrZ4SAqjeAw3agKmH5PaUpXXKAr.png"
+        alt="DB Softwares"
+        class="logo-img"
+      >
+      <div class="logo-divider"></div>
+      <div class="logo-product">
+        <span class="logo-product-name">DB<span>Board</span></span>
+        <span class="tagline">Camada de Observabilidade</span>
+      </div>
     </div>
-    
-    <div class="nav-item active" data-view="executions">
-      <i class="fas fa-chart-line"></i> <span>Execuções</span>
+
+    <!-- Nav scrollável -->
+    <nav class="sidebar-nav">
+
+      <!-- Grupo: Monitoramento -->
+      <div class="nav-group">
+        <div class="nav-section-label">Monitoramento</div>
+        <div class="nav-item active" data-view="executions">
+          <i class="fas fa-chart-line"></i>
+          <span>Execuções</span>
+        </div>
+        <div class="nav-item" data-view="automations">
+          <i class="fas fa-robot"></i>
+          <span>Automações</span>
+        </div>
+        <div class="nav-item" data-view="sla">
+          <i class="fas fa-gauge-high"></i>
+          <span>SLA &amp; Performance</span>
+        </div>
+        <div class="nav-item" data-view="insights">
+          <i class="fas fa-brain"></i>
+          <span>Insights IA</span>
+        </div>
+      </div>
+
+      <!-- Grupo: Gestão -->
+      <div class="nav-group">
+        <div class="nav-section-label">Gestão</div>
+        <div class="nav-item" data-view="agenda">
+          <i class="fas fa-calendar-days"></i>
+          <span>Agendamentos</span>
+        </div>
+        <div class="nav-item" data-view="relatorios">
+          <i class="fas fa-file-chart-column"></i>
+          <span>Relatórios</span>
+        </div>
+        <div class="nav-item" data-view="notificacoes">
+          <i class="fas fa-bell"></i>
+          <span>Notificações</span>
+          <span class="nav-badge" id="navNotifBadge">3</span>
+        </div>
+      </div>
+
+      <!-- Grupo: Sistema -->
+      <div class="nav-group">
+        <div class="nav-section-label">Sistema</div>
+        <div class="nav-item" data-view="configuracoes">
+          <i class="fas fa-sliders"></i>
+          <span>Configurações</span>
+        </div>
+      </div>
+
+      <!-- Grupo NOC (aparece apenas no modo NOC) -->
+      <div class="noc-divider" id="nocDivider" style="display: none;">
+        <div class="noc-badge"><i class="fas fa-shield-halved"></i> NOC — Operações</div>
+      </div>
+
+      <div class="nav-group noc-only-group" id="nocGroup" style="display:none">
+        <div class="nav-item noc-only" data-view="monitor" id="navMonitor">
+          <i class="fas fa-display"></i>
+          <span>Monitor Tempo Real</span>
+          <span class="nav-badge nav-badge-danger" id="navMonitorBadge">2</span>
+        </div>
+        <div class="nav-item noc-only" data-view="admin" id="navAdmin">
+          <i class="fas fa-tower-broadcast"></i>
+          <span>Admin &amp; Tickets</span>
+        </div>
+        <div class="nav-item noc-only" data-view="clients" id="navClients">
+          <i class="fas fa-users"></i>
+          <span>Clientes</span>
+        </div>
+      </div>
+
+    </nav>
+
+    <!-- Footer da sidebar: usuário + modo toggle -->
+    <div class="sidebar-footer">
+      <div class="sidebar-user-row">
+        <div class="sidebar-avatar" id="sidebarAvatar">DB</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebarUserName">Administrador</div>
+          <div class="sidebar-user-role" id="sidebarUserRole">NOC Operador</div>
+        </div>
+      </div>
+      <div class="sidebar-mode-row">
+        <i class="fas fa-shield-halved sidebar-mode-icon" id="modeIcon"></i>
+        <span id="modeText">Modo NOC</span>
+        <label class="switch" style="margin-left: auto;">
+          <input type="checkbox" id="modeToggle">
+          <span class="slider round"></span>
+        </label>
+      </div>
     </div>
-    <div class="nav-item" data-view="automations">
-      <i class="fas fa-robot"></i> <span>Automações</span>
-    </div>
-    <div class="nav-item" data-view="sla">
-      <i class="fas fa-chart-simple"></i> <span>SLA & Performance</span>
-    </div>
-    <div class="nav-item" data-view="insights">
-      <i class="fas fa-brain"></i> <span>Insights IA</span>
-    </div>
-    
-    <!-- Divisão visual para área NOC (só aparece no modo NOC) -->
-    <div class="noc-divider" id="nocDivider" style="display: none;">
-      <hr>
-      <div class="noc-badge"><i class="fas fa-shield-alt"></i> NOC - Operações</div>
-    </div>
-    <div class="nav-item noc-only" data-view="admin" style="display: none;" id="navAdmin">
-      <i class="fas fa-tower-broadcast"></i> <span>Admin & Tickets</span>
-    </div>
-    <div class="nav-item noc-only" data-view="clients" style="display: none;" id="navClients">
-      <i class="fas fa-users"></i> <span>Clientes (visão geral)</span>
-    </div>
-    
-    <div class="nav-item mode-switch-item" style="margin-top: auto; margin-bottom: 20px;">
-      <i class="fas fa-toggle-on" id="modeIcon"></i> 
-      <span id="modeText">Modo NOC</span>
-      <label class="switch" style="margin-left: auto;">
-        <input type="checkbox" id="modeToggle">
-        <span class="slider round"></span>
-      </label>
-    </div>
+
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- ============================================================
+       CONTEÚDO PRINCIPAL
+  ============================================================ -->
   <main class="main-content">
-    <!-- Top bar dinâmico -->
+
+    <!-- Top bar -->
     <div class="top-bar">
       <div class="page-title" id="pageTitle">
         <h2><i class="fas fa-chart-line"></i> Painel de Execuções</h2>
       </div>
       <div class="user-info">
-        <span class="badge-cliente" id="clienteNome"><i class="fas fa-building"></i> Indústria Machado S.A</span>
+        <span class="badge-cliente" id="clienteNome">
+          <i class="fas fa-building"></i> Indústria Machado S.A
+        </span>
         <div class="avatar" id="userAvatar">DB</div>
-        <span class="role-badge" id="roleBadge">👁️ Cliente</span>
+        <span class="role-badge" id="roleBadge">&#128065;&#65039; Cliente</span>
+        <button class="btn-logout" id="btnLogout" title="Sair"
+          onclick="(function(){ sessionStorage.clear(); window.location.href='login.html'; })()">
+          <i class="fas fa-right-from-bracket"></i>
+        </button>
       </div>
     </div>
 
-    <!-- FILTROS (global) -->
+    <!-- Filtros globais -->
     <div class="filters-bar">
       <div class="filter-group">
         <label><i class="fas fa-calendar"></i> Período</label>
@@ -91,59 +179,171 @@
           <option value="Boletos iteração">Boletos iteração</option>
         </select>
       </div>
-      <button id="applyFiltersBtn" class="btn-secondary"><i class="fas fa-sync-alt"></i> Aplicar</button>
+      <button id="applyFiltersBtn" class="btn-secondary">
+        <i class="fas fa-sync-alt"></i> Aplicar
+      </button>
+      <div class="filters-bar-right">
+        <button class="btn-download-relatorio" id="btnDownloadExecucoes" onclick="baixarRelatorioExecucoes()">
+          <i class="fas fa-file-arrow-down"></i>
+          <span>Baixar relatório</span>
+          <div class="btn-download-arrow"><i class="fas fa-chevron-down"></i></div>
+        </button>
+        <div class="download-dropdown" id="downloadDropdown">
+          <button onclick="baixarRelatorioExecucoes('csv')"><i class="fas fa-table"></i> CSV</button>
+          <button onclick="baixarRelatorioExecucoes('json')"><i class="fas fa-code"></i> JSON</button>
+          <button onclick="baixarRelatorioExecucoes('txt')"><i class="fas fa-file-lines"></i> Texto (.txt)</button>
+        </div>
+      </div>
     </div>
 
-    <!-- VIEW: EXECUÇÕES (padrão) -->
+    <!-- ============================================================
+         VIEW: EXECUÇÕES (padrão)
+    ============================================================ -->
     <div id="viewExecutions" class="view-active">
+
       <div class="stats-grid" id="statsGrid"></div>
-      
+
       <div class="dashboard-row">
         <div class="card-chart large">
-          <div class="section-title"><i class="fas fa-chart-line"></i> Execuções por hora (últimos 7 dias)</div>
+          <div class="section-title">
+            <i class="fas fa-chart-line"></i> Execuções por hora (últimos 7 dias)
+          </div>
           <canvas id="execChart" height="200"></canvas>
           <div class="insight-ia" id="insightTrend">
             <i class="fas fa-robot"></i> <strong>Observabilidade IA:</strong> Carregando padrões...
           </div>
         </div>
+
         <div class="card-table">
-          <div class="section-title"><i class="fas fa-list-ul"></i> Últimas execuções</div>
+          <div class="section-title">
+            <i class="fas fa-list-ul"></i> Últimas execuções
+          </div>
           <div style="overflow-x: auto;">
             <table class="exec-table" id="executionsTable">
               <thead>
-                <tr><th>Horário</th><th>Processo</th><th>Status</th><th>Duração</th><th style="width:40px"></th></tr>
+                <tr>
+                  <th>Horário</th>
+                  <th>Processo</th>
+                  <th>Status</th>
+                  <th>Duração</th>
+                  <th style="width:40px"></th>
+                </tr>
               </thead>
               <tbody id="executionsTableBody"></tbody>
             </table>
           </div>
         </div>
       </div>
-      
+
       <div class="dashboard-row">
         <div class="card-table">
-          <div class="section-title"><i class="fas fa-bug"></i> Exceções recorrentes</div>
+          <div class="section-title">
+            <i class="fas fa-bug"></i> Exceções recorrentes
+          </div>
           <table class="exec-table" id="exceptionsTable">
-            <thead><tr><th>Tipo de erro</th><th>Frequência</th><th>Variação</th><th>Ação IA</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Tipo de erro</th>
+                <th>Frequência</th>
+                <th>Variação</th>
+                <th>Ação IA</th>
+              </tr>
+            </thead>
             <tbody id="exceptionsTableBody"></tbody>
           </table>
         </div>
+
         <div class="card-chart">
-          <div class="section-title"><i class="fas fa-brain"></i> IA — Melhoria de fluxos</div>
+          <div class="section-title">
+            <i class="fas fa-brain"></i> IA — Melhoria de fluxos
+          </div>
           <div id="iaSuggestions" class="ia-suggestions-list"></div>
         </div>
       </div>
+
     </div>
 
-    <!-- VIEW: AUTOMAÇÕES (simplificado mock) -->
+    <!-- ============================================================
+         VIEW: AUTOMAÇÕES
+    ============================================================ -->
     <div id="viewAutomations" class="view-hidden">
-      <div class="card-chart" style="width:100%">
-        <div class="section-title"><i class="fas fa-robot"></i> Robôs ativos por cliente (mock)</div>
-        <canvas id="robotsChart" height="150"></canvas>
-        <p style="margin-top:16px"><i class="fas fa-database"></i> 2 UAs em operação • Capacidade 78%</p>
+
+      <!-- Stats de automações -->
+      <div class="stats-grid" id="automacaoStatsGrid"></div>
+
+      <!-- Filtros da view -->
+      <div class="automacoes-filters">
+        <div class="filter-group">
+          <label><i class="fas fa-building"></i> Cliente</label>
+          <select id="automacaoClienteFilter">
+            <option value="all">Todos os clientes</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label><i class="fas fa-tag"></i> Tipo</label>
+          <select id="automacaoTipoFilter">
+            <option value="all">Todos os tipos</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label><i class="fas fa-circle-dot"></i> Status</label>
+          <select id="automacaoStatusFilter">
+            <option value="all">Todos</option>
+            <option value="ativo">Ativo</option>
+            <option value="pausado">Pausado</option>
+            <option value="erro">Com erro</option>
+          </select>
+        </div>
+        <div class="automacoes-search">
+          <i class="fas fa-magnifying-glass"></i>
+          <input type="text" id="automacaoSearch" placeholder="Buscar robô...">
+        </div>
       </div>
+
+      <!-- Cards de robôs -->
+      <div class="robots-grid" id="robotsGrid"></div>
+
+      <!-- Gráfico + Tabela -->
+      <div class="dashboard-row" style="margin-top:20px">
+        <div class="card-chart">
+          <div class="section-title"><i class="fas fa-chart-bar"></i> Execuções por robô (últimos 7 dias)</div>
+          <canvas id="robotsChart" height="200"></canvas>
+        </div>
+        <div class="card-chart">
+          <div class="section-title"><i class="fas fa-gauge-high"></i> Taxa de sucesso por robô</div>
+          <canvas id="robotsSuccessChart" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- Tabela detalhada de robôs -->
+      <div class="card-table" style="margin-top:4px">
+        <div class="section-title"><i class="fas fa-list"></i> Detalhamento completo dos robôs</div>
+        <div style="overflow-x: auto;">
+          <table class="exec-table" id="robotsDetailTable">
+            <thead>
+              <tr>
+                <th>Robô</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Plataforma</th>
+                <th>SLA</th>
+                <th>Execuções (7d)</th>
+                <th>Taxa sucesso</th>
+                <th>Última execução</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="robotsDetailBody"></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
 
-    <!-- VIEW: SLA -->
+    <!-- ============================================================
+         VIEW: SLA
+    ============================================================ -->
     <div id="viewSla" class="view-hidden">
       <div class="stats-grid" id="slaStatsGrid"></div>
       <div class="card-chart">
@@ -151,20 +351,34 @@
       </div>
     </div>
 
-    <!-- VIEW: INSIGHTS IA (central) -->
+    <!-- ============================================================
+         VIEW: INSIGHTS IA
+    ============================================================ -->
     <div id="viewInsights" class="view-hidden">
       <div class="insight-card expanded">
-        <h3><i class="fas fa-brain"></i> Análise preditiva - resumo executivo</h3>
+        <h3><i class="fas fa-brain"></i> Análise preditiva — resumo executivo</h3>
         <div id="insightsFullList"></div>
       </div>
     </div>
 
-    <!-- VIEW: ADMIN / NOC (só modo NOC) -->
+    <!-- ============================================================
+         VIEW: ADMIN / NOC
+    ============================================================ -->
     <div id="viewAdmin" class="view-hidden">
       <div class="card-table">
-        <div class="section-title"><i class="fas fa-ticket-alt"></i> Tickets gerados automaticamente (IA → NOC)</div>
+        <div class="section-title">
+          <i class="fas fa-ticket-alt"></i> Tickets gerados automaticamente (IA &rarr; NOC)
+        </div>
         <table class="exec-table" id="ticketsTable">
-          <thead><tr><th>Ticket</th><th>Cliente</th><th>Problema</th><th>Ação sugerida</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Ticket</th>
+              <th>Cliente</th>
+              <th>Problema</th>
+              <th>Ação sugerida</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody id="ticketsTableBody"></tbody>
         </table>
       </div>
@@ -172,27 +386,309 @@
 
     <div id="viewClients" class="view-hidden">
       <div class="card-table">
-        <div class="section-title"><i class="fas fa-chart-pie"></i> Visão geral todos os clientes (NOC)</div>
+        <div class="section-title">
+          <i class="fas fa-chart-pie"></i> Visão geral todos os clientes (NOC)
+        </div>
         <canvas id="clientsOverviewChart" height="120"></canvas>
         <table class="exec-table" id="clientsTable"></table>
       </div>
     </div>
 
-    <!-- MODAL DE DETALHES -->
+    <!-- ============================================================
+         VIEW: AGENDA & AGENDAMENTOS
+    ============================================================ -->
+    <div id="viewAgenda" class="view-hidden">
+      <div class="stats-grid" id="agendaStatsGrid"></div>
+      <div class="dashboard-row">
+        <div class="card-table" style="flex:2">
+          <div class="section-title" style="justify-content:space-between">
+            <span><i class="fas fa-calendar-days"></i> Agendamentos ativos</span>
+            <button class="btn-secondary" style="margin-left:auto" onclick="openNovoAgendamentoModal()">
+              <i class="fas fa-plus"></i> Novo agendamento
+            </button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="exec-table" id="agendaTable">
+              <thead>
+                <tr>
+                  <th>Robô</th>
+                  <th>Cliente</th>
+                  <th>Frequência</th>
+                  <th>Próxima execução</th>
+                  <th>Última execução</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="agendaTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-chart">
+          <div class="section-title"><i class="fas fa-clock"></i> Carga horária por período</div>
+          <canvas id="agendaCargaChart" height="220"></canvas>
+        </div>
+      </div>
+      <div class="dashboard-row">
+        <div class="card-chart" style="flex:1">
+          <div class="section-title"><i class="fas fa-calendar-week"></i> Grade semanal de execuções</div>
+          <div class="agenda-weekly-grid" id="agendaWeeklyGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         VIEW: RELATÓRIOS
+    ============================================================ -->
+    <div id="viewRelatorios" class="view-hidden">
+      <div class="stats-grid" id="relatoriosStatsGrid"></div>
+      <div class="dashboard-row">
+        <div class="card-table" style="flex:2">
+          <div class="section-title" style="justify-content:space-between">
+            <span><i class="fas fa-file-chart-column"></i> Relatórios disponíveis</span>
+            <button class="btn-secondary" onclick="gerarRelatorio('executivo')">
+              <i class="fas fa-file-export"></i> Gerar relatório executivo
+            </button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="exec-table" id="relatoriosTable">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Tipo</th>
+                  <th>Período</th>
+                  <th>Gerado em</th>
+                  <th>Tamanho</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="relatoriosTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-chart">
+          <div class="section-title"><i class="fas fa-chart-pie"></i> Relatórios por tipo</div>
+          <canvas id="relatoriosTipoChart" height="220"></canvas>
+        </div>
+      </div>
+      <div class="relatorios-templates-grid" id="relatoriosTemplatesGrid"></div>
+    </div>
+
+    <!-- ============================================================
+         VIEW: NOTIFICAÇÕES
+    ============================================================ -->
+    <div id="viewNotificacoes" class="view-hidden">
+      <div class="notif-header-row">
+        <div class="stats-grid" style="flex:1" id="notifStatsGrid"></div>
+        <button class="btn-secondary" style="align-self:flex-start;margin-top:4px" onclick="marcarTodasLidas()">
+          <i class="fas fa-check-double"></i> Marcar todas como lidas
+        </button>
+      </div>
+      <div class="dashboard-row" style="align-items:flex-start">
+        <div class="card-table" style="flex:2">
+          <div class="section-title" style="justify-content:space-between">
+            <span><i class="fas fa-bell"></i> Central de notificações</span>
+            <div style="display:flex;gap:8px">
+              <select id="notifFilter" class="notif-filter-select" onchange="renderNotificacoes()">
+                <option value="all">Todas</option>
+                <option value="nao-lida">Nao lidas</option>
+                <option value="critica">Criticas</option>
+                <option value="aviso">Avisos</option>
+                <option value="info">Informacoes</option>
+              </select>
+            </div>
+          </div>
+          <div class="notif-list" id="notifList"></div>
+        </div>
+        <div class="card-chart">
+          <div class="section-title"><i class="fas fa-sliders"></i> Preferencias de alertas</div>
+          <div class="notif-prefs-list" id="notifPrefsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         VIEW: CONFIGURAÇÕES
+    ============================================================ -->
+    <div id="viewConfiguracoes" class="view-hidden">
+      <div class="config-grid" id="configGrid">
+
+        <!-- Perfil -->
+        <div class="config-card">
+          <div class="config-card-header">
+            <div class="config-icon"><i class="fas fa-user-circle"></i></div>
+            <div>
+              <div class="config-card-title">Perfil e acesso</div>
+              <div class="config-card-sub">Dados do operador e permissoes</div>
+            </div>
+          </div>
+          <div class="config-fields">
+            <div class="config-field">
+              <label>Nome do operador</label>
+              <input type="text" id="cfgNomeOperador" value="Admin DB Softwares" class="config-input">
+            </div>
+            <div class="config-field">
+              <label>E-mail</label>
+              <input type="email" id="cfgEmail" value="noc@dbsoftwares.com.br" class="config-input">
+            </div>
+            <div class="config-field">
+              <label>Cliente vinculado</label>
+              <input type="text" id="cfgCliente" value="Industria Machado S.A" class="config-input" readonly>
+            </div>
+          </div>
+          <button class="btn-secondary" style="width:100%;justify-content:center;margin-top:12px">
+            <i class="fas fa-floppy-disk"></i> Salvar perfil
+          </button>
+        </div>
+
+        <!-- Alertas -->
+        <div class="config-card">
+          <div class="config-card-header">
+            <div class="config-icon"><i class="fas fa-bell"></i></div>
+            <div>
+              <div class="config-card-title">Alertas e notificacoes</div>
+              <div class="config-card-sub">Controle o que e quando voce e notificado</div>
+            </div>
+          </div>
+          <div class="config-toggles" id="configToggles"></div>
+        </div>
+
+        <!-- SLA -->
+        <div class="config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background:rgba(189,160,126,0.15);color:var(--db-gold)"><i class="fas fa-gauge-high"></i></div>
+            <div>
+              <div class="config-card-title">Limites de SLA</div>
+              <div class="config-card-sub">Defina thresholds por processo</div>
+            </div>
+          </div>
+          <div class="config-fields">
+            <div class="config-field">
+              <label>SLA critico (% falhas)</label>
+              <input type="number" id="cfgSlaCritico" value="20" min="0" max="100" class="config-input">
+            </div>
+            <div class="config-field">
+              <label>SLA alerta (% falhas)</label>
+              <input type="number" id="cfgSlaAlerta" value="10" min="0" max="100" class="config-input">
+            </div>
+            <div class="config-field">
+              <label>Janela de avaliacao (horas)</label>
+              <input type="number" id="cfgSlaJanela" value="24" min="1" max="168" class="config-input">
+            </div>
+          </div>
+          <button class="btn-secondary" style="width:100%;justify-content:center;margin-top:12px">
+            <i class="fas fa-floppy-disk"></i> Salvar limiares
+          </button>
+        </div>
+
+        <!-- Integrações -->
+        <div class="config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background:rgba(31,122,77,0.12);color:var(--db-success)"><i class="fas fa-plug"></i></div>
+            <div>
+              <div class="config-card-title">Integracoes</div>
+              <div class="config-card-sub">Conexoes com sistemas externos</div>
+            </div>
+          </div>
+          <div class="integracoes-list" id="integracoesList"></div>
+        </div>
+
+        <!-- Aparência -->
+        <div class="config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background:rgba(62,86,158,0.1);color:var(--db-blue)"><i class="fas fa-palette"></i></div>
+            <div>
+              <div class="config-card-title">Aparencia</div>
+              <div class="config-card-sub">Personalize o dashboard</div>
+            </div>
+          </div>
+          <div class="config-toggles">
+            <div class="config-toggle-row">
+              <div class="ctr-info"><span class="ctr-label">Sidebar compacta</span><span class="ctr-desc">Reduz largura do menu lateral</span></div>
+              <label class="switch"><input type="checkbox" id="cfgSidebarCompact"><span class="slider round"></span></label>
+            </div>
+            <div class="config-toggle-row">
+              <div class="ctr-info"><span class="ctr-label">Animacoes reducidas</span><span class="ctr-desc">Melhora performance em redes lentas</span></div>
+              <label class="switch"><input type="checkbox"><span class="slider round"></span></label>
+            </div>
+            <div class="config-toggle-row">
+              <div class="ctr-info"><span class="ctr-label">Auto-refresh (30s)</span><span class="ctr-desc">Atualiza dados automaticamente</span></div>
+              <label class="switch"><input type="checkbox" id="cfgAutoRefresh" checked><span class="slider round"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sobre -->
+        <div class="config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background:rgba(62,86,158,0.1);color:var(--db-blue)"><i class="fas fa-circle-info"></i></div>
+            <div>
+              <div class="config-card-title">Sobre o DB Board</div>
+              <div class="config-card-sub">Versao e informacoes do sistema</div>
+            </div>
+          </div>
+          <div class="config-sobre">
+            <div class="sobre-logo-row">
+              <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DB%20sem%20Fundo-xMiKrZ4SAqjeAw3agKmH5PaUpXXKAr.png" alt="DB Softwares" class="sobre-logo">
+            </div>
+            <div class="sobre-info-list">
+              <div class="sobre-row"><span>Produto</span><strong>DB Board</strong></div>
+              <div class="sobre-row"><span>Versao</span><strong>2.4.1</strong></div>
+              <div class="sobre-row"><span>Ambiente</span><strong>Producao</strong></div>
+              <div class="sobre-row"><span>Empresa</span><strong>DB Softwares</strong></div>
+              <div class="sobre-row"><span>Suporte</span><strong>noc@dbsoftwares.com.br</strong></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         VIEW: MONITOR EM TEMPO REAL (NOC)
+    ============================================================ -->
+    <div id="viewMonitor" class="view-hidden">
+      <div class="stats-grid" id="monitorStatsGrid"></div>
+      <div class="monitor-live-bar">
+        <span class="monitor-live-dot"></span>
+        <span>Monitor ativo — atualizando a cada 5 segundos</span>
+        <span class="monitor-ts" id="monitorTimestamp"></span>
+      </div>
+      <div class="dashboard-row" style="align-items:flex-start">
+        <div class="card-table" style="flex:2">
+          <div class="section-title"><i class="fas fa-circle-dot" style="color:var(--db-danger)"></i> Robos em execucao agora</div>
+          <div class="monitor-robots-grid" id="monitorRobotsGrid"></div>
+        </div>
+        <div class="card-chart">
+          <div class="section-title"><i class="fas fa-chart-area"></i> Execucoes por minuto (tempo real)</div>
+          <canvas id="monitorRealtimeChart" height="200"></canvas>
+          <div class="section-title" style="margin-top:20px"><i class="fas fa-triangle-exclamation" style="color:var(--db-danger)"></i> Alertas ativos</div>
+          <div class="monitor-alertas-list" id="monitorAlertasList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL DE DETALHES
+    ============================================================ -->
     <div id="detailModal" class="modal">
       <div class="modal-content">
         <span class="close-modal">&times;</span>
-        <h3 id="modalTitle">Detalhe da execução</h3>
+        <h3 id="modalTitle"><i class="fas fa-info-circle" style="color:var(--db-blue)"></i> Detalhe da execução</h3>
         <div id="modalBody"></div>
       </div>
     </div>
 
+    <!-- Footer -->
     <div class="footer-demo">
-      <i class="fas fa-chart-simple"></i> DB Board — Camada de Observabilidade + IA. Dados simulados para demonstração do ciclo: eventos → IA → NOC → melhoria.
+      <i class="fas fa-shield-halved"></i>
+      DB Board &mdash; Camada de Observabilidade + IA &bull; Dados simulados para demonstração do ciclo: eventos &rarr; IA &rarr; NOC &rarr; melhoria.
     </div>
+
   </main>
 </div>
 
-<script src="{% static 'js/script.js' %}"></script>
+<script src="/scripts/script.js"></script>
 </body>
 </html>
