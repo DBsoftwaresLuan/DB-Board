@@ -2345,6 +2345,47 @@ input:checked + .slider:before {
 }
 
 /* =====================================================================
+   UA CARD — UNIDADES DE AUTOMAÇÃO
+   ===================================================================== */
+.stat-card-ua {
+  border-top: 3px solid var(--db-blue);
+}
+
+.stat-card-ua::after {
+  display: none;
+}
+
+.ua-bar-track {
+  width: 100%;
+  height: 8px;
+  background: var(--db-border);
+  border-radius: 100px;
+  overflow: visible;
+  position: relative;
+}
+
+.ua-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.ua-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: inherit;
+  border: 2px solid var(--db-surface);
+  box-shadow: 0 0 0 2px rgba(62, 86, 158, 0.25);
+}
+
+/* =====================================================================
    SCROLLBAR GLOBAL
    ===================================================================== */
 ::-webkit-scrollbar { width: 6px; height: 6px; }

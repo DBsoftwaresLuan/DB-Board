@@ -372,8 +372,15 @@ function renderStats() {
   const isAdmin = currentUser.role === 'dbsoftwares';
   const periodoLabel = period === "today" ? "hoje" : period === "week" ? "últimos 7 dias" : "últimos 30 dias";
 
-  // Health score para clientes
+  // Config de UAs por cliente
+  const UA_CONFIG = {
+    autus: { total: 30, label: 'Autus' },
+    rocha: { total: 20, label: 'Rocha' },
+  };
+
+  // Health score e UA card para clientes
   let healthHtml = '';
+  let uaHtml = '';
   if (!isAdmin) {
     const healthScore = Math.min(100, Math.round(
       (parseFloat(successRate) * 0.6) +
@@ -390,10 +397,38 @@ function renderStats() {
           <div class="robot-progress-fill" style="width:${healthScore}%;background:${hColor}"></div>
         </div>
       </div>`;
+
+    // Card de Unidades de Automacao
+    const uaConf = UA_CONFIG[currentUser.username] || { total: 20, label: currentUser.displayName };
+    const uaUsadas = getRobosByUser().length;
+    const uaDisponiveis = Math.max(0, uaConf.total - uaUsadas);
+    const uaPct = Math.round((uaUsadas / uaConf.total) * 100);
+    const uaColor = uaPct >= 90 ? 'var(--db-danger)' : uaPct >= 75 ? 'var(--db-warning)' : 'var(--db-success)';
+    uaHtml = `
+      <div class="stat-card stat-card-ua">
+        <div class="stat-title"><i class="fas fa-microchip" style="color:var(--db-blue)"></i> Unidades de Automacao</div>
+        <div style="display:flex;align-items:baseline;gap:6px;margin:6px 0 2px">
+          <span class="stat-number" style="font-size:1.8rem">${uaUsadas}</span>
+          <span style="font-size:0.85rem;color:var(--db-text-muted);font-weight:500">/ ${uaConf.total} UAs</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--db-text-muted);margin-bottom:8px">
+          <span style="color:${uaColor};font-weight:700">${uaPct}%</span> utilizadas &nbsp;&bull;&nbsp;
+          <span style="color:var(--db-success);font-weight:700">${uaDisponiveis}</span> disponíveis
+        </div>
+        <div class="ua-bar-track">
+          <div class="ua-bar-fill" style="width:${uaPct}%;background:${uaColor}"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:0.64rem;color:var(--db-text-muted)">
+          <span>0</span>
+          <span style="color:${uaColor};font-weight:600">${uaPct}% em uso</span>
+          <span>${uaConf.total}</span>
+        </div>
+      </div>`;
   }
 
   document.getElementById('statsGrid').innerHTML = `
     ${healthHtml}
+    ${uaHtml}
     <div class="stat-card">
       <div class="stat-title"><i class="fas fa-play-circle"></i> Total execuções</div>
       <div class="stat-number">${total}</div>
