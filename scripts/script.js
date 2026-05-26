@@ -599,7 +599,8 @@ function initUserMode() {
     if (isAdmin) {
       roleBadge.innerHTML = '<i class="fas fa-shield-halved"></i> Administrador';
     } else {
-      roleBadge.innerHTML = `<i class="fas fa-building"></i> ${currentUser.displayName}`;
+      roleBadge.innerHTML = '';
+      roleBadge.style.display = 'none';
     }
   }
 
