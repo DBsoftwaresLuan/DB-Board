@@ -369,27 +369,50 @@ function renderStats() {
   const successRate = total ? ((success/total)*100).toFixed(1) : 0;
   const avgDuration = total ? (filtered.reduce((acc,e) => acc + e.duracaoSegundos, 0) / total).toFixed(0) : 0;
   const slaViolations = filtered.filter(e => e.duracaoSegundos > e.slaSegundos).length;
-  
+  const isAdmin = currentUser.role === 'dbsoftwares';
+  const periodoLabel = period === "today" ? "hoje" : period === "week" ? "últimos 7 dias" : "últimos 30 dias";
+
+  // Health score para clientes
+  let healthHtml = '';
+  if (!isAdmin) {
+    const healthScore = Math.min(100, Math.round(
+      (parseFloat(successRate) * 0.6) +
+      (Math.max(0, 100 - ((slaViolations / (total || 1)) * 100)) * 0.4)
+    ));
+    const hColor = healthScore >= 80 ? 'var(--db-success)' : healthScore >= 60 ? 'var(--db-warning)' : 'var(--db-danger)';
+    const hLabel = healthScore >= 80 ? 'Operacao saudavel' : healthScore >= 60 ? 'Atencao necessaria' : 'Intervencao urgente';
+    healthHtml = `
+      <div class="stat-card stat-card-health">
+        <div class="stat-title"><i class="fas fa-heart-pulse" style="color:${hColor}"></i> Health Score</div>
+        <div class="stat-number" style="color:${hColor}">${healthScore}</div>
+        <div class="stat-trend" style="color:${hColor}">${hLabel}</div>
+        <div class="robot-progress-bar" style="margin-top:8px">
+          <div class="robot-progress-fill" style="width:${healthScore}%;background:${hColor}"></div>
+        </div>
+      </div>`;
+  }
+
   document.getElementById('statsGrid').innerHTML = `
+    ${healthHtml}
     <div class="stat-card">
       <div class="stat-title"><i class="fas fa-play-circle"></i> Total execuções</div>
       <div class="stat-number">${total}</div>
-      <div class="stat-trend">${period === "today" ? "hoje" : period === "week" ? "últimos 7 dias" : "últimos 30 dias"}</div>
+      <div class="stat-trend">${periodoLabel}</div>
     </div>
     <div class="stat-card">
       <div class="stat-title"><i class="fas fa-check-circle"></i> Taxa de sucesso</div>
       <div class="stat-number">${successRate}%</div>
-      <div class="stat-trend ${successRate > 85 ? 'trend-up' : 'trend-down'}">${successRate > 85 ? '▲ Saudável' : '▼ Abaixo da meta'}</div>
+      <div class="stat-trend ${successRate > 85 ? 'trend-up' : 'trend-down'}">${successRate > 85 ? 'Saudavel' : 'Abaixo da meta'}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-title"><i class="fas fa-hourglass-half"></i> Duração média</div>
+      <div class="stat-title"><i class="fas fa-hourglass-half"></i> Duracao media</div>
       <div class="stat-number">${avgDuration}s</div>
-      <div class="stat-trend">SLA médio: 65s</div>
+      <div class="stat-trend">SLA medio: 65s</div>
     </div>
     <div class="stat-card">
-      <div class="stat-title"><i class="fas fa-exclamation-triangle"></i> Violações de SLA</div>
+      <div class="stat-title"><i class="fas fa-exclamation-triangle"></i> Violacoes de SLA</div>
       <div class="stat-number">${slaViolations}</div>
-      <div class="stat-trend trend-down">${((slaViolations/total)*100).toFixed(1)}% das execuções</div>
+      <div class="stat-trend trend-down">${total ? ((slaViolations/total)*100).toFixed(1) : 0}% das execucoes</div>
     </div>
   `;
 }
@@ -635,7 +658,7 @@ function changeView(viewId) {
     sla:            { icon: 'fa-chart-simple',       label: 'SLA & Performance' },
     insights:       { icon: 'fa-brain',              label: 'Insights IA' },
     agenda:         { icon: 'fa-calendar-days',      label: 'Agenda & Agendamentos' },
-    relatorios:     { icon: 'fa-file-chart-column',  label: 'Relatorios' },
+    relatorios:     { icon: 'fa-chart-bar',           label: 'Relatorios' },
     notificacoes:   { icon: 'fa-bell',               label: 'Notificacoes' },
     configuracoes:  { icon: 'fa-sliders',            label: 'Configuracoes' },
     monitor:        { icon: 'fa-display',            label: 'Monitor em Tempo Real' },
@@ -1205,6 +1228,52 @@ function renderConfiguracoesView() {
     `).join('');
   }
 
+  // Botão de suporte para clientes
+  const suporteCard = document.getElementById('cfgSuporteCard');
+  if (!suporteCard && currentUser.role !== 'dbsoftwares') {
+    const configGrid = document.getElementById('configGrid');
+    if (configGrid) {
+      const card = document.createElement('div');
+      card.className = 'config-card';
+      card.id = 'cfgSuporteCard';
+      card.innerHTML = `
+        <div class="config-card-header">
+          <div class="config-icon" style="background:rgba(189,160,126,0.15);color:var(--db-gold)"><i class="fas fa-headset"></i></div>
+          <div>
+            <div class="config-card-title">Suporte DB Softwares</div>
+            <div class="config-card-sub">Entre em contato com o time NOC</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:var(--db-bg);border-radius:8px;padding:12px;border:1px solid var(--db-border-soft);font-size:0.8rem">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <i class="fas fa-envelope" style="color:var(--db-blue);width:16px"></i>
+              <span style="color:var(--db-text-muted)">E-mail</span>
+              <strong style="margin-left:auto">noc@dbsoftwares.com.br</strong>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <i class="fas fa-phone" style="color:var(--db-blue);width:16px"></i>
+              <span style="color:var(--db-text-muted)">Telefone</span>
+              <strong style="margin-left:auto">(11) 3000-4000</strong>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <i class="fas fa-clock" style="color:var(--db-gold);width:16px"></i>
+              <span style="color:var(--db-text-muted)">Horario</span>
+              <strong style="margin-left:auto">Seg–Sex 08h–18h</strong>
+            </div>
+          </div>
+          <button class="btn-secondary" style="width:100%;justify-content:center" onclick="mostrarToast('Ticket de suporte criado! Retorno em ate 2h.')">
+            <i class="fas fa-ticket-alt"></i> Abrir chamado de suporte
+          </button>
+          <button class="btn-secondary" style="width:100%;justify-content:center;background:var(--db-gold)" onclick="mostrarToast('Abrindo chat com NOC...')">
+            <i class="fas fa-comment-dots"></i> Chat em tempo real
+          </button>
+        </div>
+      `;
+      configGrid.appendChild(card);
+    }
+  }
+
   const integEl = document.getElementById('integracoesList');
   if (integEl) {
     const integracoes = [
@@ -1387,6 +1456,44 @@ function renderInsightsView() {
         </div>
       `).join('')}
     </div>
+
+    ${currentUser.role !== 'dbsoftwares' ? `
+    <div class="insights-section-label" style="margin-top:24px">Historico de Melhorias Realizadas</div>
+    <div class="insights-timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot timeline-dot-success"></div>
+        <div class="timeline-body">
+          <div class="timeline-date">Mai 2025</div>
+          <div class="timeline-title">Otimizacao do Validador NF-e</div>
+          <div class="timeline-desc">Timeout aumentado para 70s. Taxa de falha reduziu de 28% para 6% no horario critico (14h-15h).</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot timeline-dot-success"></div>
+        <div class="timeline-body">
+          <div class="timeline-date">Abr 2025</div>
+          <div class="timeline-title">Retry automatico no Integrador ERP</div>
+          <div class="timeline-desc">Implementado backoff exponencial com ate 3 tentativas. Sucesso nas recuperacoes: 89%.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot timeline-dot-blue"></div>
+        <div class="timeline-body">
+          <div class="timeline-date">Mar 2025</div>
+          <div class="timeline-title">Novo robo: Rastreador de Entregas</div>
+          <div class="timeline-desc">Automatizacao do acompanhamento de transportadoras. Reducao de 4h/semana em trabalho manual.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot timeline-dot-gold"></div>
+        <div class="timeline-body">
+          <div class="timeline-date">Fev 2025</div>
+          <div class="timeline-title">Upgrade da plataforma UiPath</div>
+          <div class="timeline-desc">Atualizacao para versao mais recente. Ganho medio de 12% em velocidade de execucao.</div>
+        </div>
+      </div>
+    </div>
+    ` : ''}
   `;
 }
 
@@ -1492,8 +1599,9 @@ function renderRoboCards() {
         <div class="robot-desc">${r.descricao}</div>
         <div class="robot-tags">
           <span class="robot-tag tag-tipo">${r.tipo}</span>
-          <span class="robot-tag tag-cliente">${r.cliente.split(' ').slice(0,2).join(' ')}</span>
+          ${currentUser.role === 'dbsoftwares' ? `<span class="robot-tag tag-cliente">${r.cliente.split(' ').slice(0,2).join(' ')}</span>` : ''}
           <span class="robot-tag tag-sla">SLA ${r.slaSegundos}s</span>
+          <span class="robot-tag" style="background:var(--db-bg);border:1px solid var(--db-border);color:var(--db-text-muted)">${r.plataforma}</span>
         </div>
         <div class="robot-stats-row">
           <div class="robot-stat">
@@ -1599,7 +1707,7 @@ function renderRoboDetailTable() {
     const row = tbody.insertRow();
     row.innerHTML = `
       <td><strong>${r.nome}</strong><br><small style="color:var(--db-text-muted)">v${r.versao}</small></td>
-      <td>${r.cliente}</td>
+      ${currentUser.role === 'dbsoftwares' ? `<td>${r.cliente}</td>` : ''}
       <td><span class="robot-tag tag-tipo" style="display:inline-block">${r.tipo}</span></td>
       <td><span class="robot-tag" style="display:inline-block;background:var(--db-bg);color:var(--db-text-muted);border:1px solid var(--db-border)">${r.plataforma}</span></td>
       <td>${r.slaSegundos}s</td>
@@ -1695,16 +1803,194 @@ function initAutomacaoFilters() {
 let gestaoRobosChart = null;
 let gestaoSucessoChart = null;
 
+// Dados de perfil completo dos clientes
+const clientesPerfis = {
+  rocha: {
+    key: 'rocha',
+    label: 'Rocha',
+    clienteStr: 'Cliente Rocha',
+    robos: robosRocha,
+    cor: '#3E569E',
+    segmento: 'Indústria & Comércio',
+    cnpj: '12.345.678/0001-90',
+    contato: 'Carlos Rocha',
+    email: 'carlos.rocha@gruporocha.com.br',
+    telefone: '(11) 98765-4321',
+    contratoInicio: '01/03/2023',
+    contratoVencimento: '28/02/2026',
+    plano: 'Enterprise',
+    valorMensal: 'R$ 8.500,00',
+    ticketsAbertos: 2,
+    ultimaReuniao: '15/05/2025',
+    nps: 9,
+    descricao: 'Grupo Rocha atua no setor de manufatura e distribuição com 14 automações ativas. Foco em NF-e, ERP e controle de estoque.',
+    acoes: [
+      { icon: 'fa-file-export', label: 'Gerar relatório', fn: "gerarRelatorio('Relatorio Executivo Rocha')" },
+      { icon: 'fa-ticket-alt',  label: 'Abrir ticket',    fn: "abrirTicketCliente('rocha')" },
+      { icon: 'fa-bell',        label: 'Enviar alerta',   fn: "enviarAlertaCliente('rocha')" },
+      { icon: 'fa-robot',       label: 'Gerenciar robôs', fn: "changeView('automations')" },
+    ],
+  },
+  autus: {
+    key: 'autus',
+    label: 'Autus',
+    clienteStr: 'Cliente Autus',
+    robos: robosAutus,
+    cor: '#BDA07E',
+    segmento: 'Serviços Financeiros & RH',
+    cnpj: '98.765.432/0001-11',
+    contato: 'Fernanda Costa',
+    email: 'fernanda.costa@autus.com.br',
+    telefone: '(11) 91234-5678',
+    contratoInicio: '15/06/2022',
+    contratoVencimento: '14/06/2026',
+    plano: 'Enterprise Plus',
+    valorMensal: 'R$ 14.200,00',
+    ticketsAbertos: 1,
+    ultimaReuniao: '20/05/2025',
+    nps: 8,
+    descricao: 'Autus opera no setor financeiro e de RH com 22 automações ativas. Foco em SAP, folha de pagamento, conciliação e compliance.',
+    acoes: [
+      { icon: 'fa-file-export', label: 'Gerar relatório',     fn: "gerarRelatorio('Relatorio Executivo Autus')" },
+      { icon: 'fa-ticket-alt',  label: 'Abrir ticket',        fn: "abrirTicketCliente('autus')" },
+      { icon: 'fa-bell',        label: 'Enviar alerta',       fn: "enviarAlertaCliente('autus')" },
+      { icon: 'fa-robot',       label: 'Gerenciar robôs',     fn: "changeView('automations')" },
+    ],
+  },
+};
+
+function showClientePerfilModal(key) {
+  const c = clientesPerfis[key];
+  if (!c) return;
+  const robosCliente = c.robos;
+  const execsCliente = executionsData.filter(e => {
+    const diff = (new Date() - new Date(e.datetime)) / (1000 * 3600 * 24);
+    return e.cliente === c.clienteStr && diff <= 7;
+  });
+  const taxa = execsCliente.length
+    ? ((execsCliente.filter(e => e.status === 'sucesso').length / execsCliente.length) * 100).toFixed(1)
+    : '0.0';
+  const ativos = robosCliente.filter(r => r.statusRobo === 'ativo').length;
+  const healthScore = Math.min(100, Math.round(
+    (parseFloat(taxa) * 0.5) +
+    ((ativos / robosCliente.length) * 100 * 0.3) +
+    (c.nps * 2)
+  ));
+  const healthColor = healthScore >= 80 ? 'var(--db-success)' : healthScore >= 60 ? 'var(--db-warning)' : 'var(--db-danger)';
+  const npsColor = c.nps >= 9 ? 'var(--db-success)' : c.nps >= 7 ? 'var(--db-warning)' : 'var(--db-danger)';
+
+  document.getElementById('modalTitle').innerHTML =
+    `<i class="fas fa-building" style="color:${c.cor}"></i> Perfil — ${c.label}
+     <span class="status-badge" style="background:${c.cor}20;color:${c.cor};margin-left:8px;font-size:0.68rem">${c.segmento}</span>`;
+
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+
+      <!-- Bloco Contato & Contrato -->
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--db-text-muted);font-weight:700;margin-bottom:2px">Contato & Contrato</div>
+        <div style="font-size:0.8rem;display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--db-border-soft)"><span style="color:var(--db-text-muted)">Responsável</span><strong>${c.contato}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--db-border-soft)"><span style="color:var(--db-text-muted)">E-mail</span><span style="font-size:0.73rem">${c.email}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--db-border-soft)"><span style="color:var(--db-text-muted)">Telefone</span><strong>${c.telefone}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--db-border-soft)"><span style="color:var(--db-text-muted)">CNPJ</span><span style="font-family:monospace;font-size:0.75rem">${c.cnpj}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--db-border-soft)"><span style="color:var(--db-text-muted)">Plano</span><strong style="color:var(--db-blue)">${c.plano}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--db-border-soft)"><span style="color:var(--db-text-muted)">Valor mensal</span><strong>${c.valorMensal}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--db-border-soft)"><span style="color:var(--db-text-muted)">Contrato</span><span style="font-size:0.73rem">${c.contratoInicio} → ${c.contratoVencimento}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0"><span style="color:var(--db-text-muted)">Última reunião</span><span style="font-size:0.73rem">${c.ultimaReuniao}</span></div>
+        </div>
+      </div>
+
+      <!-- Bloco Performance & Health -->
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--db-text-muted);font-weight:700;margin-bottom:2px">Saúde do Cliente</div>
+
+        <!-- Health Score -->
+        <div style="background:var(--db-bg);border-radius:10px;padding:14px;border:1px solid var(--db-border-soft);text-align:center">
+          <div style="font-size:0.7rem;color:var(--db-text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Health Score</div>
+          <div style="font-size:2.2rem;font-weight:800;color:${healthColor};line-height:1">${healthScore}</div>
+          <div style="font-size:0.68rem;color:${healthColor};font-weight:600;margin-top:2px">${healthScore >= 80 ? 'Excelente' : healthScore >= 60 ? 'Regular' : 'Critico'}</div>
+          <div style="height:5px;background:var(--db-border);border-radius:10px;margin-top:8px;overflow:hidden">
+            <div style="width:${healthScore}%;height:100%;background:${healthColor};border-radius:10px;transition:width .6s"></div>
+          </div>
+        </div>
+
+        <!-- KPIs pequenos -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:var(--db-bg);border-radius:8px;padding:10px;border:1px solid var(--db-border-soft);text-align:center">
+            <div style="font-size:1.3rem;font-weight:800;color:var(--db-blue)">${ativos}</div>
+            <div style="font-size:0.64rem;color:var(--db-text-muted);text-transform:uppercase">Robôs ativos</div>
+          </div>
+          <div style="background:var(--db-bg);border-radius:8px;padding:10px;border:1px solid var(--db-border-soft);text-align:center">
+            <div style="font-size:1.3rem;font-weight:800;color:${parseFloat(taxa) >= 85 ? 'var(--db-success)' : 'var(--db-warning)'}">${taxa}%</div>
+            <div style="font-size:0.64rem;color:var(--db-text-muted);text-transform:uppercase">Taxa sucesso</div>
+          </div>
+          <div style="background:var(--db-bg);border-radius:8px;padding:10px;border:1px solid var(--db-border-soft);text-align:center">
+            <div style="font-size:1.3rem;font-weight:800;color:${npsColor}">${c.nps}/10</div>
+            <div style="font-size:0.64rem;color:var(--db-text-muted);text-transform:uppercase">NPS</div>
+          </div>
+          <div style="background:var(--db-bg);border-radius:8px;padding:10px;border:1px solid var(--db-border-soft);text-align:center">
+            <div style="font-size:1.3rem;font-weight:800;color:${c.ticketsAbertos > 0 ? 'var(--db-warning)' : 'var(--db-success)'}">${c.ticketsAbertos}</div>
+            <div style="font-size:0.64rem;color:var(--db-text-muted);text-transform:uppercase">Tickets abertos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Descrição -->
+    <div style="background:rgba(62,86,158,0.05);border-left:3px solid var(--db-blue);border-radius:0 8px 8px 0;padding:12px 14px;font-size:0.8rem;color:var(--db-text-muted);margin-bottom:14px;line-height:1.55">
+      <i class="fas fa-circle-info" style="color:var(--db-blue);margin-right:6px"></i>${c.descricao}
+    </div>
+
+    <!-- Ações rápidas -->
+    <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--db-text-muted);font-weight:700;margin-bottom:8px">Ações rápidas</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+      ${c.acoes.map(a => `
+        <button class="btn-secondary" style="flex-direction:column;gap:5px;padding:10px 8px;font-size:0.7rem;text-align:center;justify-content:center;background:var(--db-bg);color:var(--db-blue);border:1px solid var(--db-border)" onclick="${a.fn};document.getElementById('detailModal').style.display='none'">
+          <i class="fas ${a.icon}" style="font-size:1rem;color:var(--db-blue)"></i>
+          ${a.label}
+        </button>
+      `).join('')}
+    </div>
+  `;
+  document.getElementById('detailModal').style.display = 'block';
+}
+
+function abrirTicketCliente(key) {
+  const c = clientesPerfis[key];
+  if (!c) return;
+  document.getElementById('modalTitle').innerHTML = `<i class="fas fa-ticket-alt" style="color:var(--db-blue)"></i> Abrir Ticket — ${c.label}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="config-fields">
+      <div class="config-field"><label>Cliente</label><input class="config-input" value="${c.label}" readonly></div>
+      <div class="config-field"><label>Prioridade</label>
+        <select class="config-input"><option>Alta</option><option>Media</option><option>Baixa</option></select>
+      </div>
+      <div class="config-field"><label>Título do ticket</label><input type="text" class="config-input" placeholder="Descreva o problema..."></div>
+      <div class="config-field"><label>Detalhes</label>
+        <textarea class="config-input" rows="3" style="resize:vertical" placeholder="Informações adicionais..."></textarea>
+      </div>
+    </div>
+    <button class="btn-secondary" style="width:100%;justify-content:center;margin-top:14px" onclick="mostrarToast('Ticket criado com sucesso');document.getElementById('detailModal').style.display='none'">
+      <i class="fas fa-check"></i> Criar ticket
+    </button>
+  `;
+  document.getElementById('detailModal').style.display = 'block';
+}
+
+function enviarAlertaCliente(key) {
+  const c = clientesPerfis[key];
+  if (!c) return;
+  mostrarToast(`Alerta enviado para <strong>${c.contato}</strong> (${c.label})`);
+}
+
 function renderGestaoView() {
   if (currentUser.role !== 'dbsoftwares') return;
 
-  const clientes = [
-    { key: 'rocha', label: 'Rocha',  clienteStr: 'Cliente Rocha', robos: robosRocha, cor: '#3E569E' },
-    { key: 'autus', label: 'Autus',  clienteStr: 'Cliente Autus', robos: robosAutus, cor: '#BDA07E' },
-  ];
+  const clientes = Object.values(clientesPerfis);
 
   // Stats globais
-  const totalRobos = robosAll.length;
+  const totalRobos  = robosAll.length;
   const totalAtivos = robosAll.filter(r => r.statusRobo === 'ativo').length;
   const totalErro   = robosAll.filter(r => r.statusRobo === 'erro').length;
   const execsAll    = executionsData.filter(e => {
@@ -1712,6 +1998,10 @@ function renderGestaoView() {
     return diff <= 7;
   });
   const taxaGlobal  = execsAll.length ? ((execsAll.filter(e => e.status === 'sucesso').length / execsAll.length) * 100).toFixed(1) : '0.0';
+  const receitaTotal = clientes.reduce((acc, c) => {
+    const val = parseFloat(c.valorMensal.replace(/[^0-9,]/g, '').replace(',', '.'));
+    return acc + val;
+  }, 0);
 
   const globalStats = document.getElementById('gestaoGlobalStats');
   if (globalStats) {
@@ -1719,27 +2009,52 @@ function renderGestaoView() {
       <div class="stat-card">
         <div class="stat-title"><i class="fas fa-users"></i> Clientes ativos</div>
         <div class="stat-number">${clientes.length}</div>
-        <div class="stat-trend">Rocha &amp; Autus</div>
+        <div class="stat-trend">${clientes.map(c => c.label).join(' & ')}</div>
       </div>
       <div class="stat-card">
         <div class="stat-title"><i class="fas fa-robot"></i> Total de robôs</div>
         <div class="stat-number">${totalRobos}</div>
-        <div class="stat-trend trend-up">${totalAtivos} ativos</div>
+        <div class="stat-trend trend-up">${totalAtivos} em operação</div>
       </div>
       <div class="stat-card">
         <div class="stat-title"><i class="fas fa-check-circle" style="color:var(--db-success)"></i> Taxa de sucesso (7d)</div>
         <div class="stat-number" style="color:var(--db-success)">${taxaGlobal}%</div>
-        <div class="stat-trend trend-up">Média consolidada</div>
+        <div class="stat-trend trend-up">Consolidado geral</div>
       </div>
       <div class="stat-card">
         <div class="stat-title"><i class="fas fa-triangle-exclamation" style="color:var(--db-danger)"></i> Robôs com erro</div>
-        <div class="stat-number" style="color:var(--db-danger)">${totalErro}</div>
+        <div class="stat-number" style="color:${totalErro > 0 ? 'var(--db-danger)' : 'var(--db-success)'}">${totalErro}</div>
         <div class="stat-trend ${totalErro > 0 ? 'trend-down' : 'trend-up'}">${totalErro > 0 ? 'Requerem atenção' : 'Operação normal'}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title"><i class="fas fa-circle-dollar-to-slot" style="color:var(--db-gold)"></i> Receita mensal</div>
+        <div class="stat-number" style="font-size:1.3rem;color:var(--db-gold)">R$&nbsp;${receitaTotal.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+        <div class="stat-trend">MRR consolidado</div>
       </div>
     `;
   }
 
-  // Cards por cliente
+  // Header de ações admin
+  const gestaoHeader = document.querySelector('.gestao-clientes-header');
+  if (gestaoHeader && !document.getElementById('gestaoActionsRow')) {
+    const actRow = document.createElement('div');
+    actRow.id = 'gestaoActionsRow';
+    actRow.style.cssText = 'display:flex;gap:10px;margin-top:14px;flex-wrap:wrap';
+    actRow.innerHTML = `
+      <button class="btn-secondary" onclick="mostrarToast('Funcionalidade em desenvolvimento')">
+        <i class="fas fa-user-plus"></i> Novo cliente
+      </button>
+      <button class="btn-secondary" style="background:var(--db-gold)" onclick="gerarRelatorio('Relatorio Consolidado de Clientes')">
+        <i class="fas fa-file-export"></i> Relatório consolidado
+      </button>
+      <button class="btn-secondary" style="background:var(--db-blue-dark)" onclick="mostrarToast('Exportação iniciada')">
+        <i class="fas fa-table-cells"></i> Exportar dados
+      </button>
+    `;
+    gestaoHeader.appendChild(actRow);
+  }
+
+  // Cards por cliente — com health score e botão de perfil
   const grid = document.getElementById('gestaoClientesGrid');
   if (grid) {
     grid.innerHTML = clientes.map(c => {
@@ -1757,17 +2072,32 @@ function renderGestaoView() {
         const robo = robosAll.find(r => r.id === n.roboId);
         return robo && robo.cliente === c.clienteStr && !n.lida;
       }).length;
+      const healthScore = Math.min(100, Math.round(
+        (parseFloat(taxa) * 0.5) + ((ativos / robosCliente.length) * 100 * 0.3) + (c.nps * 2)
+      ));
+      const healthColor = healthScore >= 80 ? 'var(--db-success)' : healthScore >= 60 ? 'var(--db-warning)' : 'var(--db-danger)';
+      const npsColor = c.nps >= 9 ? 'var(--db-success)' : c.nps >= 7 ? 'var(--db-warning)' : 'var(--db-danger)';
 
       return `
         <div class="gestao-cliente-card">
-          <div class="gcc-header" style="border-left: 4px solid ${c.cor}">
+          <div class="gcc-header" style="border-left:4px solid ${c.cor}">
             <div class="gcc-avatar" style="background:${c.cor}20;color:${c.cor}">${c.label.substring(0,2).toUpperCase()}</div>
             <div class="gcc-info">
               <div class="gcc-nome">${c.label}</div>
-              <div class="gcc-sub">${c.clienteStr}</div>
+              <div class="gcc-sub">${c.segmento}</div>
             </div>
             ${notifCliente > 0 ? `<span class="nav-badge nav-badge-danger" style="margin-left:auto">${notifCliente} alerta${notifCliente > 1 ? 's' : ''}</span>` : ''}
           </div>
+
+          <!-- Health Score Bar -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:2px">
+            <span style="font-size:0.68rem;color:var(--db-text-muted);font-weight:600;white-space:nowrap">Health Score</span>
+            <div style="flex:1;height:6px;background:var(--db-border);border-radius:10px;overflow:hidden">
+              <div style="width:${healthScore}%;height:100%;background:${healthColor};border-radius:10px"></div>
+            </div>
+            <span style="font-size:0.8rem;font-weight:800;color:${healthColor};min-width:32px;text-align:right">${healthScore}</span>
+          </div>
+
           <div class="gcc-stats">
             <div class="gcc-stat">
               <span class="gcc-stat-num">${robosCliente.length}</span>
@@ -1778,21 +2108,32 @@ function renderGestaoView() {
               <span class="gcc-stat-lbl">Ativos</span>
             </div>
             <div class="gcc-stat">
-              <span class="gcc-stat-num" style="color:var(--db-danger)">${erros}</span>
-              <span class="gcc-stat-lbl">Erros</span>
+              <span class="gcc-stat-num" style="color:${parseFloat(taxa) >= 85 ? 'var(--db-success)' : 'var(--db-warning)'}">${taxa}%</span>
+              <span class="gcc-stat-lbl">Sucesso</span>
             </div>
             <div class="gcc-stat">
-              <span class="gcc-stat-num">${execsCliente.length}</span>
-              <span class="gcc-stat-lbl">Execuções (7d)</span>
+              <span class="gcc-stat-num" style="color:${npsColor}">${c.nps}/10</span>
+              <span class="gcc-stat-lbl">NPS</span>
             </div>
           </div>
-          <div class="gcc-sla-row">
-            <span style="font-size:0.75rem;color:var(--db-text-muted)">Taxa de sucesso</span>
-            <span style="font-weight:700;color:${parseFloat(taxa) >= 85 ? 'var(--db-success)' : 'var(--db-warning)'}">${taxa}%</span>
+
+          <!-- Detalhes rápidos -->
+          <div style="display:flex;flex-direction:column;gap:4px;font-size:0.75rem;color:var(--db-text-muted);padding:8px 0;border-top:1px solid var(--db-border-soft);border-bottom:1px solid var(--db-border-soft);margin:4px 0">
+            <div style="display:flex;justify-content:space-between">
+              <span><i class="fas fa-user" style="width:14px;color:var(--db-blue)"></i> ${c.contato}</span>
+              <span style="color:var(--db-blue)">${c.plano}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span><i class="fas fa-calendar-check" style="width:14px;color:var(--db-gold)"></i> Contrato até ${c.contratoVencimento}</span>
+              <span style="color:${c.ticketsAbertos > 0 ? 'var(--db-warning)' : 'var(--db-success)'}">
+                ${c.ticketsAbertos} ticket${c.ticketsAbertos !== 1 ? 's' : ''}
+              </span>
+            </div>
           </div>
-          <div class="robot-progress-bar" style="margin-top:4px">
-            <div class="robot-progress-fill" style="width:${taxa}%;background:${parseFloat(taxa) >= 85 ? 'var(--db-success)' : 'var(--db-warning)'}"></div>
-          </div>
+
+          <button class="btn-secondary" style="width:100%;justify-content:center;margin-top:4px" onclick="showClientePerfilModal('${c.key}')">
+            <i class="fas fa-id-card"></i> Ver perfil completo
+          </button>
         </div>
       `;
     }).join('');
@@ -1889,6 +2230,10 @@ function renderGestaoView() {
 
 function init() {
   initUserMode();
+  // Oculta colunas exclusivas de admin para clientes
+  if (currentUser.role !== 'dbsoftwares') {
+    document.querySelectorAll('.admin-col').forEach(el => el.style.display = 'none');
+  }
   initEventListeners();
   changeView('executions');
   renderStats();
