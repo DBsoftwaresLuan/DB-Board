@@ -414,8 +414,8 @@ function renderCharts() {
     data: {
       labels: labels,
       datasets: [
-        { label: 'Sucessos', data: sucessosPorHora, borderColor: '#289672', backgroundColor: 'rgba(40,150,114,0.1)', fill: true, tension: 0.3 },
-        { label: 'Falhas', data: falhasPorHora, borderColor: '#C23B22', borderDash: [5,5], tension: 0.3 }
+        { label: 'Sucessos', data: sucessosPorHora, borderColor: '#3E569E', backgroundColor: 'rgba(62,86,158,0.10)', fill: true, tension: 0.4, borderWidth: 2, pointBackgroundColor: '#3E569E', pointRadius: 3 },
+        { label: 'Falhas', data: falhasPorHora, borderColor: '#C0392B', backgroundColor: 'rgba(192,57,43,0.06)', fill: true, borderDash: [5,5], tension: 0.4, borderWidth: 2, pointRadius: 3 }
       ]
     },
     options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
@@ -432,7 +432,21 @@ function renderCharts() {
   if (slaChart) slaChart.destroy();
   slaChart = new Chart(document.getElementById('slaChart'), {
     type: 'bar',
-    data: { labels: robosPrincipais.map(r => r.nome.substring(0,15)), datasets: [{ label: 'SLA cumprido (%)', data: slaPerformance, backgroundColor: '#1E6F5C', borderRadius: 8 }] }
+    data: {
+      labels: robosPrincipais.map(r => r.nome.substring(0,15)),
+      datasets: [{
+        label: 'SLA cumprido (%)',
+        data: slaPerformance,
+        backgroundColor: slaPerformance.map(v => v >= 85 ? 'rgba(62,86,158,0.75)' : 'rgba(189,160,126,0.85)'),
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } }
+    }
   });
 }
 
