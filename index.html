@@ -81,6 +81,20 @@
           <span>Notificações</span>
           <span class="nav-badge" id="navNotifBadge">3</span>
         </div>
+        <!-- Itens exclusivos do admin DB Softwares -->
+        <div class="nav-item noc-only" data-view="gestao" id="navGestao" style="display:none">
+          <i class="fas fa-chart-pie"></i>
+          <span>Gestão de Clientes</span>
+        </div>
+        <div class="nav-item noc-only" data-view="monitor" id="navMonitor" style="display:none">
+          <i class="fas fa-display"></i>
+          <span>Monitor Tempo Real</span>
+          <span class="nav-badge nav-badge-danger" id="navMonitorBadge">2</span>
+        </div>
+        <div class="nav-item noc-only" data-view="admin" id="navAdmin" style="display:none">
+          <i class="fas fa-tower-broadcast"></i>
+          <span>Admin &amp; Tickets</span>
+        </div>
       </div>
 
       <!-- Grupo: Sistema -->
@@ -92,45 +106,16 @@
         </div>
       </div>
 
-      <!-- Grupo NOC (aparece apenas no modo NOC) -->
-      <div class="noc-divider" id="nocDivider" style="display: none;">
-        <div class="noc-badge"><i class="fas fa-shield-halved"></i> NOC — Operações</div>
-      </div>
-
-      <div class="nav-group noc-only-group" id="nocGroup" style="display:none">
-        <div class="nav-item noc-only" data-view="monitor" id="navMonitor">
-          <i class="fas fa-display"></i>
-          <span>Monitor Tempo Real</span>
-          <span class="nav-badge nav-badge-danger" id="navMonitorBadge">2</span>
-        </div>
-        <div class="nav-item noc-only" data-view="admin" id="navAdmin">
-          <i class="fas fa-tower-broadcast"></i>
-          <span>Admin &amp; Tickets</span>
-        </div>
-        <div class="nav-item noc-only" data-view="clients" id="navClients">
-          <i class="fas fa-users"></i>
-          <span>Clientes</span>
-        </div>
-      </div>
-
     </nav>
 
-    <!-- Footer da sidebar: usuário + modo toggle -->
+    <!-- Footer da sidebar: usuário logado -->
     <div class="sidebar-footer">
       <div class="sidebar-user-row">
         <div class="sidebar-avatar" id="sidebarAvatar">DB</div>
         <div class="sidebar-user-info">
           <div class="sidebar-user-name" id="sidebarUserName">Administrador</div>
-          <div class="sidebar-user-role" id="sidebarUserRole">NOC Operador</div>
+          <div class="sidebar-user-role" id="sidebarUserRole">DB Softwares</div>
         </div>
-      </div>
-      <div class="sidebar-mode-row">
-        <i class="fas fa-shield-halved sidebar-mode-icon" id="modeIcon"></i>
-        <span id="modeText">Modo NOC</span>
-        <label class="switch" style="margin-left: auto;">
-          <input type="checkbox" id="modeToggle">
-          <span class="slider round"></span>
-        </label>
       </div>
     </div>
 
@@ -147,11 +132,10 @@
         <h2><i class="fas fa-chart-line"></i> Painel de Execuções</h2>
       </div>
       <div class="user-info">
-        <span class="badge-cliente" id="clienteNome">
-          <i class="fas fa-building"></i> Indústria Machado S.A
-        </span>
-        <div class="avatar" id="userAvatar">DB</div>
-        <span class="role-badge" id="roleBadge">&#128065;&#65039; Cliente</span>
+        <div class="topbar-logo-wrap" id="topbarLogoWrap">
+          <img id="topbarLogoImg" src="" alt="Logo" class="topbar-logo-img">
+        </div>
+        <span class="role-badge" id="roleBadge"></span>
         <button class="btn-logout" id="btnLogout" title="Sair"
           onclick="(function(){ sessionStorage.clear(); window.location.href='login.html'; })()">
           <i class="fas fa-right-from-bracket"></i>
@@ -387,11 +371,52 @@
     <div id="viewClients" class="view-hidden">
       <div class="card-table">
         <div class="section-title">
-          <i class="fas fa-chart-pie"></i> Visão geral todos os clientes (NOC)
+          <i class="fas fa-chart-pie"></i> Visão geral todos os clientes (Admin)
         </div>
         <canvas id="clientsOverviewChart" height="120"></canvas>
         <table class="exec-table" id="clientsTable"></table>
       </div>
+    </div>
+
+    <!-- ============================================================
+         VIEW: GESTÃO DE CLIENTES (DB Softwares Admin)
+    ============================================================ -->
+    <div id="viewGestao" class="view-hidden">
+
+      <!-- KPI Cards dos clientes -->
+      <div class="gestao-clientes-header">
+        <div class="gestao-intro">
+          <i class="fas fa-shield-halved"></i>
+          <div>
+            <div class="gestao-intro-title">Painel de Gestão — DB Softwares</div>
+            <div class="gestao-intro-sub">Visão consolidada dos clientes, robôs e alertas em tempo real</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="gestaoGlobalStats"></div>
+
+      <!-- Cards por cliente -->
+      <div class="gestao-clientes-grid" id="gestaoClientesGrid"></div>
+
+      <!-- Gráficos comparativos -->
+      <div class="dashboard-row" style="margin-top:8px">
+        <div class="card-chart">
+          <div class="section-title"><i class="fas fa-chart-bar"></i> Robôs ativos por cliente</div>
+          <canvas id="gestaoRobosChart" height="200"></canvas>
+        </div>
+        <div class="card-chart">
+          <div class="section-title"><i class="fas fa-gauge-high"></i> Taxa de sucesso por cliente (7d)</div>
+          <canvas id="gestaoSucessoChart" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- Notificações dos clientes -->
+      <div class="card-table" style="margin-top:4px">
+        <div class="section-title"><i class="fas fa-bell"></i> Alertas recentes por cliente</div>
+        <div class="notif-list" id="gestaoAlertasList"></div>
+      </div>
+
     </div>
 
     <!-- ============================================================
@@ -526,15 +551,15 @@
           <div class="config-fields">
             <div class="config-field">
               <label>Nome do operador</label>
-              <input type="text" id="cfgNomeOperador" value="Admin DB Softwares" class="config-input">
+              <input type="text" id="cfgNomeOperador" value="" class="config-input">
             </div>
             <div class="config-field">
               <label>E-mail</label>
-              <input type="email" id="cfgEmail" value="noc@dbsoftwares.com.br" class="config-input">
+              <input type="email" id="cfgEmail" value="" class="config-input">
             </div>
             <div class="config-field">
-              <label>Cliente vinculado</label>
-              <input type="text" id="cfgCliente" value="Industria Machado S.A" class="config-input" readonly>
+              <label>Conta vinculada</label>
+              <input type="text" id="cfgCliente" value="" class="config-input" readonly>
             </div>
           </div>
           <button class="btn-secondary" style="width:100%;justify-content:center;margin-top:12px">
