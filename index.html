@@ -41,76 +41,97 @@
       </div>
     </div>
 
-    <!-- Seção principal -->
-    <div class="nav-section-label">Principal</div>
+    <!-- Nav scrollável -->
+    <nav class="sidebar-nav">
 
-    <div class="nav-item active" data-view="executions">
-      <i class="fas fa-chart-line"></i>
-      <span>Execuções</span>
-    </div>
-    <div class="nav-item" data-view="automations">
-      <i class="fas fa-robot"></i>
-      <span>Automações</span>
-    </div>
-    <div class="nav-item" data-view="sla">
-      <i class="fas fa-chart-simple"></i>
-      <span>SLA &amp; Performance</span>
-    </div>
-    <div class="nav-item" data-view="insights">
-      <i class="fas fa-brain"></i>
-      <span>Insights IA</span>
-    </div>
-    <div class="nav-item" data-view="agenda">
-      <i class="fas fa-calendar-days"></i>
-      <span>Agenda &amp; Agendamentos</span>
-    </div>
-    <div class="nav-item" data-view="relatorios">
-      <i class="fas fa-file-chart-column"></i>
-      <span>Relatórios</span>
-    </div>
+      <!-- Grupo: Monitoramento -->
+      <div class="nav-group">
+        <div class="nav-section-label">Monitoramento</div>
+        <div class="nav-item active" data-view="executions">
+          <i class="fas fa-chart-line"></i>
+          <span>Execuções</span>
+        </div>
+        <div class="nav-item" data-view="automations">
+          <i class="fas fa-robot"></i>
+          <span>Automações</span>
+        </div>
+        <div class="nav-item" data-view="sla">
+          <i class="fas fa-gauge-high"></i>
+          <span>SLA &amp; Performance</span>
+        </div>
+        <div class="nav-item" data-view="insights">
+          <i class="fas fa-brain"></i>
+          <span>Insights IA</span>
+        </div>
+      </div>
 
-    <!-- Separador geral -->
-    <div class="nav-section-sep"></div>
+      <!-- Grupo: Gestão -->
+      <div class="nav-group">
+        <div class="nav-section-label">Gestão</div>
+        <div class="nav-item" data-view="agenda">
+          <i class="fas fa-calendar-days"></i>
+          <span>Agendamentos</span>
+        </div>
+        <div class="nav-item" data-view="relatorios">
+          <i class="fas fa-file-chart-column"></i>
+          <span>Relatórios</span>
+        </div>
+        <div class="nav-item" data-view="notificacoes">
+          <i class="fas fa-bell"></i>
+          <span>Notificações</span>
+          <span class="nav-badge" id="navNotifBadge">3</span>
+        </div>
+      </div>
 
-    <!-- Notificações -->
-    <div class="nav-item" data-view="notificacoes">
-      <i class="fas fa-bell"></i>
-      <span>Notificações</span>
-      <span class="nav-badge" id="navNotifBadge">3</span>
-    </div>
-    <div class="nav-item" data-view="configuracoes">
-      <i class="fas fa-sliders"></i>
-      <span>Configurações</span>
-    </div>
+      <!-- Grupo: Sistema -->
+      <div class="nav-group">
+        <div class="nav-section-label">Sistema</div>
+        <div class="nav-item" data-view="configuracoes">
+          <i class="fas fa-sliders"></i>
+          <span>Configurações</span>
+        </div>
+      </div>
 
-    <!-- Seção NOC (aparece no modo NOC) -->
-    <div class="noc-divider" id="nocDivider" style="display: none;">
-      <hr>
-      <div class="noc-badge"><i class="fas fa-shield-alt"></i> NOC — Operações</div>
-    </div>
+      <!-- Grupo NOC (aparece apenas no modo NOC) -->
+      <div class="noc-divider" id="nocDivider" style="display: none;">
+        <div class="noc-badge"><i class="fas fa-shield-halved"></i> NOC — Operações</div>
+      </div>
 
-    <div class="nav-item noc-only" data-view="monitor" style="display: none;" id="navMonitor">
-      <i class="fas fa-display"></i>
-      <span>Monitor em Tempo Real</span>
-      <span class="nav-badge nav-badge-danger" id="navMonitorBadge">2</span>
-    </div>
-    <div class="nav-item noc-only" data-view="admin" style="display: none;" id="navAdmin">
-      <i class="fas fa-tower-broadcast"></i>
-      <span>Admin &amp; Tickets</span>
-    </div>
-    <div class="nav-item noc-only" data-view="clients" style="display: none;" id="navClients">
-      <i class="fas fa-users"></i>
-      <span>Clientes (visão geral)</span>
-    </div>
+      <div class="nav-group noc-only-group" id="nocGroup" style="display:none">
+        <div class="nav-item noc-only" data-view="monitor" id="navMonitor">
+          <i class="fas fa-display"></i>
+          <span>Monitor Tempo Real</span>
+          <span class="nav-badge nav-badge-danger" id="navMonitorBadge">2</span>
+        </div>
+        <div class="nav-item noc-only" data-view="admin" id="navAdmin">
+          <i class="fas fa-tower-broadcast"></i>
+          <span>Admin &amp; Tickets</span>
+        </div>
+        <div class="nav-item noc-only" data-view="clients" id="navClients">
+          <i class="fas fa-users"></i>
+          <span>Clientes</span>
+        </div>
+      </div>
 
-    <!-- Toggle de modo -->
-    <div class="nav-item mode-switch-item" style="margin-top: auto; margin-bottom: 20px;">
-      <i class="fas fa-toggle-on" id="modeIcon"></i>
-      <span id="modeText">Modo NOC</span>
-      <label class="switch" style="margin-left: auto;">
-        <input type="checkbox" id="modeToggle">
-        <span class="slider round"></span>
-      </label>
+    </nav>
+
+    <!-- Footer da sidebar: usuário + modo toggle -->
+    <div class="sidebar-footer">
+      <div class="sidebar-user-row">
+        <div class="sidebar-avatar" id="sidebarAvatar">DB</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebarUserName">Administrador</div>
+          <div class="sidebar-user-role" id="sidebarUserRole">NOC Operador</div>
+        </div>
+      </div>
+      <div class="sidebar-mode-row">
+        <i class="fas fa-shield-halved sidebar-mode-icon" id="modeIcon"></i>
+        <span id="modeText">Modo NOC</span>
+        <label class="switch" style="margin-left: auto;">
+          <input type="checkbox" id="modeToggle">
+          <span class="slider round"></span>
+        </label>
+      </div>
     </div>
 
   </aside>
@@ -161,6 +182,18 @@
       <button id="applyFiltersBtn" class="btn-secondary">
         <i class="fas fa-sync-alt"></i> Aplicar
       </button>
+      <div class="filters-bar-right">
+        <button class="btn-download-relatorio" id="btnDownloadExecucoes" onclick="baixarRelatorioExecucoes()">
+          <i class="fas fa-file-arrow-down"></i>
+          <span>Baixar relatório</span>
+          <div class="btn-download-arrow"><i class="fas fa-chevron-down"></i></div>
+        </button>
+        <div class="download-dropdown" id="downloadDropdown">
+          <button onclick="baixarRelatorioExecucoes('csv')"><i class="fas fa-table"></i> CSV</button>
+          <button onclick="baixarRelatorioExecucoes('json')"><i class="fas fa-code"></i> JSON</button>
+          <button onclick="baixarRelatorioExecucoes('txt')"><i class="fas fa-file-lines"></i> Texto (.txt)</button>
+        </div>
+      </div>
     </div>
 
     <!-- ============================================================

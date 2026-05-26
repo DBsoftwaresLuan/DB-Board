@@ -511,13 +511,22 @@ function renderNocViews() {
 function toggleMode() {
   const isNoc = document.getElementById('modeToggle').checked;
   currentMode = isNoc ? 'noc' : 'cliente';
-  document.getElementById('modeText').innerText = currentMode === 'noc' ? 'Modo NOC' : 'Modo Cliente';
-  document.getElementById('roleBadge').innerHTML = currentMode === 'noc' ? '🛡️ NOC Operador' : '👁️ Cliente';
-  
-  const nocElements = document.querySelectorAll('.noc-only');
+
+  // Textos e badges de modo
+  document.getElementById('modeText').innerText = isNoc ? 'Modo NOC' : 'Modo Cliente';
+  document.getElementById('roleBadge').innerHTML = isNoc ? '<i class="fas fa-shield-halved"></i> NOC Operador' : '<i class="fas fa-eye"></i> Cliente';
+
+  // Sidebar: usuário e avatar
+  const sidebarRole = document.getElementById('sidebarUserRole');
+  const sidebarName = document.getElementById('sidebarUserName');
+  if (sidebarRole) sidebarRole.textContent = isNoc ? 'NOC Operador' : 'Cliente';
+  if (sidebarName) sidebarName.textContent = isNoc ? 'Administrador' : 'Usuário';
+
+  // Grupo NOC no menu
+  const nocGroup = document.getElementById('nocGroup');
   const nocDiv = document.getElementById('nocDivider');
-  nocElements.forEach(el => el.style.display = currentMode === 'noc' ? 'flex' : 'none');
-  if (nocDiv) nocDiv.style.display = currentMode === 'noc' ? 'block' : 'none';
+  if (nocGroup) nocGroup.style.display = isNoc ? 'block' : 'none';
+  if (nocDiv) nocDiv.style.display = isNoc ? 'block' : 'none';
   
   // Adiciona filtro de cliente no modo NOC
   let filterBar = document.querySelector('.filters-bar');
@@ -639,6 +648,134 @@ function initEventListeners() {
   const processSelect = document.getElementById('processFilter');
   const robosUnicos = getUniqueRobos();
   processSelect.innerHTML = '<option value="all">Todos os robôs</option>' + robosUnicos.map(r => `<option value="${r.nome}">${r.nome}</option>`).join('');
+}
+
+// ==================== DOWNLOAD DE RELATÓRIO DE EXECUÇÕES ====================
+
+// Abre/fecha dropdown
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('btnDownloadExecucoes');
+  const dd  = document.getElementById('downloadDropdown');
+  if (!btn || !dd) return;
+  if (btn.contains(e.target)) {
+    dd.classList.toggle('open');
+  } else if (!dd.contains(e.target)) {
+    dd.classList.remove('open');
+  }
+});
+
+function baixarRelatorioExecucoes(formato) {
+  formato = formato || 'csv';
+  const dd = document.getElementById('downloadDropdown');
+  if (dd) dd.classList.remove('open');
+
+  const execucoes = filterExecutions();
+  const periodo   = document.getElementById('periodFilter')?.value || 'week';
+  const processo  = document.getElementById('processFilter')?.value || 'all';
+  const agora     = new Date();
+
+  const periodoLabel = { today: 'Hoje', week: 'Ultimos 7 dias', month: 'Ultimos 30 dias' }[periodo] || periodo;
+  const nomeRelatorio = `Relatorio de Execucoes — ${periodoLabel}${processo !== 'all' ? ' — ' + processo : ''}`;
+
+  let conteudo = '';
+  let tipo     = '';
+  let ext      = '';
+
+  if (formato === 'csv') {
+    tipo = 'text/csv;charset=utf-8;';
+    ext  = 'csv';
+    const linhas = [
+      ['Horario', 'Processo', 'Status', 'Duracao (s)', 'Mensagem de erro'].join(';'),
+      ...execucoes.map(e => [
+        new Date(e.datetime).toLocaleString('pt-BR'),
+        e.processo,
+        e.status,
+        e.duracaoSegundos,
+        e.mensagemErro || ''
+      ].join(';'))
+    ];
+    conteudo = '\uFEFF' + linhas.join('\r\n'); // BOM para Excel
+  } else if (formato === 'json') {
+    tipo = 'application/json;charset=utf-8;';
+    ext  = 'json';
+    const payload = {
+      relatorio:  nomeRelatorio,
+      geradoEm:   agora.toISOString(),
+      totalExecs: execucoes.length,
+      filtros:    { periodo, processo },
+      execucoes:  execucoes.map(e => ({
+        horario:      new Date(e.datetime).toISOString(),
+        processo:     e.processo,
+        status:       e.status,
+        duracaoSeg:   e.duracaoSegundos,
+        mensagemErro: e.mensagemErro || null
+      }))
+    };
+    conteudo = JSON.stringify(payload, null, 2);
+  } else if (formato === 'txt') {
+    tipo = 'text/plain;charset=utf-8;';
+    ext  = 'txt';
+    const linhas = [
+      '========================================',
+      `  DB Board — ${nomeRelatorio}`,
+      `  Gerado em: ${agora.toLocaleString('pt-BR')}`,
+      `  Total de execucoes: ${execucoes.length}`,
+      '========================================',
+      '',
+      'HORARIO                | PROCESSO               | STATUS   | DURACAO',
+      '-'.repeat(75),
+      ...execucoes.map(e =>
+        `${new Date(e.datetime).toLocaleString('pt-BR').padEnd(22)} | ${e.processo.padEnd(22)} | ${e.status.padEnd(8)} | ${e.duracaoSegundos}s`
+      ),
+      '',
+      '-'.repeat(75),
+      `Sucessos: ${execucoes.filter(e=>e.status==='sucesso').length}   Falhas: ${execucoes.filter(e=>e.status==='falha').length}`,
+      '========================================'
+    ];
+    conteudo = linhas.join('\n');
+  }
+
+  // Trigger download no navegador
+  const blob = new Blob([conteudo], { type: tipo });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const dataStr = agora.toLocaleDateString('pt-BR').replace(/\//g, '-');
+  a.href     = url;
+  a.download = `DB-Board_Execucoes_${dataStr}.${ext}`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // Salva registro na lista de relatórios
+  const tamanhoKb = Math.round(conteudo.length / 1024 * 10) / 10;
+  const novoRelatorio = {
+    id:        relatorios.length + 1,
+    nome:      nomeRelatorio,
+    tipo:      'execucoes',
+    periodo:   periodoLabel,
+    geradoEm:  agora,
+    tamanho:   tamanhoKb < 1 ? `${Math.round(conteudo.length / 1024 * 100)}B` : `${tamanhoKb} KB`,
+    status:    'pronto',
+    formato:   formato.toUpperCase()
+  };
+  relatorios.unshift(novoRelatorio);
+
+  // Toast de confirmação
+  mostrarToast(`Relatorio baixado e salvo em <strong>Relatorios</strong>`);
+}
+
+function mostrarToast(msg) {
+  let toast = document.getElementById('dbToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'dbToast';
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+  toast.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
 // ==================== DADOS: AGENDAMENTOS ====================
