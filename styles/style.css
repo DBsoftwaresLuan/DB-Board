@@ -2162,6 +2162,230 @@ input:checked + .slider:before {
 }
 
 /* =====================================================================
+   ADMIN-ONLY COLUMN (hidden for clients)
+   ===================================================================== */
+.admin-col { display: table-cell; }
+
+/* =====================================================================
+   TABELAS — STRIPING E MELHORIAS
+   ===================================================================== */
+.exec-table tbody tr:nth-child(even) td {
+  background: rgba(62, 86, 158, 0.025);
+}
+
+.exec-table tbody tr {
+  transition: background 0.12s;
+}
+
+.exec-table tbody tr:hover td {
+  background: rgba(62, 86, 158, 0.06) !important;
+}
+
+/* =====================================================================
+   SIDEBAR — HOVER MELHORADO E ACTIVE GLOW
+   ===================================================================== */
+.nav-item.active {
+  background: rgba(62, 86, 158, 0.60);
+  box-shadow: 0 2px 12px rgba(62,86,158,0.25);
+}
+
+.nav-item:hover:not(.active) {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.95);
+}
+
+/* =====================================================================
+   TOPBAR — REFINAMENTO
+   ===================================================================== */
+.top-bar {
+  background: linear-gradient(135deg, var(--db-surface) 0%, rgba(244,246,251,0.7) 100%);
+  backdrop-filter: blur(6px);
+}
+
+.page-title h2 i {
+  background: rgba(62,86,158,0.1);
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+/* =====================================================================
+   STAT CARDS — WATERMARK DECORATIVO
+   ===================================================================== */
+.stat-card::before {
+  content: '';
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  width: 64px;
+  height: 64px;
+  background: radial-gradient(circle, rgba(62,86,158,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* =====================================================================
+   ROBOT CARDS — GRADIENTE DE FUNDO E ÍCONE
+   ===================================================================== */
+.robot-card {
+  background: linear-gradient(160deg, var(--db-surface) 75%, rgba(62,86,158,0.03) 100%);
+}
+
+.robot-icon-wrap {
+  background: linear-gradient(135deg, var(--db-blue) 0%, var(--db-blue-dark) 60%, var(--db-blue-deeper) 100%);
+  box-shadow: 0 4px 10px rgba(62,86,158,0.3);
+}
+
+/* =====================================================================
+   GESTÃO CLIENTE CARD — MELHORIAS
+   ===================================================================== */
+.gestao-cliente-card {
+  border: 1px solid var(--db-border-soft);
+  transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s;
+}
+
+.gestao-cliente-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  border-color: var(--db-blue);
+}
+
+.gcc-header {
+  background: linear-gradient(90deg, rgba(62,86,158,0.04) 0%, transparent 60%);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+/* =====================================================================
+   INSIGHTS — TIMELINE DE MELHORIAS
+   ===================================================================== */
+.insights-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  padding-left: 28px;
+}
+
+.insights-timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--db-blue) 0%, var(--db-gold) 100%);
+  opacity: 0.3;
+  border-radius: 2px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 16px;
+  padding: 14px 0 14px 0;
+  position: relative;
+  border-bottom: 1px solid var(--db-border-soft);
+}
+
+.timeline-item:last-child {
+  border-bottom: none;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -25px;
+  top: 18px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--db-surface);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.timeline-dot-success { background: var(--db-success); box-shadow: 0 0 0 3px rgba(31,122,77,0.2); }
+.timeline-dot-blue    { background: var(--db-blue);    box-shadow: 0 0 0 3px rgba(62,86,158,0.2); }
+.timeline-dot-gold    { background: var(--db-gold);    box-shadow: 0 0 0 3px rgba(189,160,126,0.2); }
+
+.timeline-body {
+  flex: 1;
+}
+
+.timeline-date {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--db-text-muted);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.timeline-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--db-text);
+  margin-bottom: 3px;
+}
+
+.timeline-desc {
+  font-size: 0.78rem;
+  color: var(--db-text-muted);
+  line-height: 1.5;
+}
+
+/* =====================================================================
+   HEALTH CARD ESPECIAL
+   ===================================================================== */
+.stat-card-health::after {
+  background: linear-gradient(90deg, var(--db-success) 0%, var(--db-gold) 100%);
+}
+
+/* =====================================================================
+   UA CARD — UNIDADES DE AUTOMAÇÃO
+   ===================================================================== */
+.stat-card-ua {
+  border-top: 3px solid var(--db-blue);
+}
+
+.stat-card-ua::after {
+  display: none;
+}
+
+.ua-bar-track {
+  width: 100%;
+  height: 8px;
+  background: var(--db-border);
+  border-radius: 100px;
+  overflow: visible;
+  position: relative;
+}
+
+.ua-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.ua-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: inherit;
+  border: 2px solid var(--db-surface);
+  box-shadow: 0 0 0 2px rgba(62, 86, 158, 0.25);
+}
+
+/* =====================================================================
    SCROLLBAR GLOBAL
    ===================================================================== */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
