@@ -421,9 +421,9 @@
   // Credenciais de acesso (frontend-only, para demonstração)
   // ==========================================================
   const CREDENTIALS = [
-    { username: "admin",   password: "dbboard2025", role: "noc"     },
-    { username: "cliente", password: "db@cliente",  role: "cliente" },
-    { username: "db",      password: "dbsoftwares", role: "noc"     }
+    { username: "dbsoftwares", password: "dbboard2025", role: "dbsoftwares", displayName: "DB Softwares", clienteNome: "DB Softwares" },
+    { username: "rocha",       password: "rocha@2025",  role: "cliente",     displayName: "Rocha",        clienteNome: "Cliente Rocha" },
+    { username: "autus",       password: "autus@2025",  role: "cliente",     displayName: "Autus",        clienteNome: "Cliente Autus"  }
   ];
 
   // Elementos
@@ -491,6 +491,8 @@
         sessionStorage.setItem('db_auth', 'true');
         sessionStorage.setItem('db_role', match.role);
         sessionStorage.setItem('db_user', match.username);
+        sessionStorage.setItem('db_displayName', match.displayName);
+        sessionStorage.setItem('db_clienteNome', match.clienteNome);
         // Redireciona para o dashboard
         window.location.href = 'index.html';
       } else {

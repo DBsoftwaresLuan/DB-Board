@@ -2039,6 +2039,109 @@ input:checked + .slider:before {
 }
 
 /* =====================================================================
+   GESTÃO DE CLIENTES
+   ===================================================================== */
+.gestao-clientes-header {
+  margin-bottom: 20px;
+}
+.gestao-intro {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--db-bg);
+  border: 1px solid var(--db-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+}
+.gestao-intro > i {
+  font-size: 1.6rem;
+  color: var(--db-blue);
+  flex-shrink: 0;
+}
+.gestao-intro-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--db-text);
+}
+.gestao-intro-sub {
+  font-size: 0.78rem;
+  color: var(--db-text-muted);
+  margin-top: 2px;
+}
+.gestao-clientes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.gestao-cliente-card {
+  background: var(--db-surface);
+  border: 1px solid var(--db-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.gestao-cliente-card:hover {
+  box-shadow: var(--db-shadow-sm);
+  transform: translateY(-2px);
+}
+.gcc-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 10px;
+  margin-bottom: 16px;
+}
+.gcc-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.gcc-nome {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--db-text);
+}
+.gcc-sub {
+  font-size: 0.72rem;
+  color: var(--db-text-muted);
+}
+.gcc-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.gcc-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.gcc-stat-num {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--db-text);
+}
+.gcc-stat-lbl {
+  font-size: 0.65rem;
+  color: var(--db-text-muted);
+  text-align: center;
+}
+.gcc-sla-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+/* =====================================================================
    SCROLLBAR GLOBAL
    ===================================================================== */
 ::-webkit-scrollbar { width: 6px; height: 6px; }

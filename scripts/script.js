@@ -1,35 +1,76 @@
+// ==================== SESSÃO / USUÁRIO ATUAL ====================
+const currentUser = {
+  role:        sessionStorage.getItem('db_role')        || 'cliente',
+  username:    sessionStorage.getItem('db_user')        || 'rocha',
+  displayName: sessionStorage.getItem('db_displayName') || 'Rocha',
+  clienteNome: sessionStorage.getItem('db_clienteNome') || 'Cliente Rocha',
+};
+
+// Mapeamento de username → nome exibido do cliente nos dados
+const CLIENT_KEY = {
+  rocha: 'Cliente Rocha',
+  autus: 'Cliente Autus',
+};
+
 // ==================== DADOS MOCK - ROBÔS E EXECUÇÕES ====================
 
-// Lista de robôs cadastrados (expandida)
-const robos = [
-  // Indústria Machado S.A
-  { id: 1,  nome: "Validador NF-e",           cliente: "Indústria Machado S.A",  tipo: "Validação",    plataforma: "UiPath",        slaSegundos: 45,  horarioCritico: "14-15", statusRobo: "ativo",   descricao: "Valida notas fiscais eletrônicas antes de registrar no ERP",            icone: "fa-file-invoice", versao: "3.2.1" },
-  { id: 2,  nome: "Integrador ERP",           cliente: "Indústria Machado S.A",  tipo: "Integração",   plataforma: "Automation Anywhere", slaSegundos: 30, statusRobo: "ativo", descricao: "Sincroniza dados entre sistemas SAP e Oracle",                            icone: "fa-arrows-rotate",versao: "2.0.4" },
-  { id: 3,  nome: "Emissor de Certificados",  cliente: "Indústria Machado S.A",  tipo: "Geração",      plataforma: "Power Automate",slaSegundos: 15,  statusRobo: "ativo",   descricao: "Emite certificados de qualidade após aprovação de lote",                  icone: "fa-certificate",  versao: "1.1.0" },
-  { id: 4,  nome: "Auditor Fiscal",           cliente: "Indústria Machado S.A",  tipo: "Auditoria",    plataforma: "UiPath",        slaSegundos: 120, statusRobo: "pausado", descricao: "Revisa automaticamente obrigações fiscais e gera relatório de auditoria", icone: "fa-magnifying-glass-chart", versao: "1.3.2" },
-
-  // Logística Rápida Ltda
-  { id: 5,  nome: "Gestor de Estoque",        cliente: "Logística Rápida Ltda",  tipo: "Processamento",plataforma: "UiPath",        slaSegundos: 60,  statusRobo: "ativo",   descricao: "Atualiza níveis de estoque em tempo real com base nas entradas/saídas",  icone: "fa-boxes-stacked",versao: "4.0.1" },
-  { id: 6,  nome: "Importador XML",           cliente: "Logística Rápida Ltda",  tipo: "Importação",   plataforma: "Blue Prism",    slaSegundos: 40,  statusRobo: "ativo",   descricao: "Importa arquivos XML de fornecedores e popula banco de dados",            icone: "fa-file-code",    versao: "2.2.0" },
-  { id: 7,  nome: "Rastreador de Entregas",   cliente: "Logística Rápida Ltda",  tipo: "Monitoramento",plataforma: "UiPath",        slaSegundos: 20,  statusRobo: "ativo",   descricao: "Monitora status de entregas em múltiplas transportadoras",                icone: "fa-truck-fast",   versao: "3.1.0" },
-  { id: 8,  nome: "Classificador de Cargas",  cliente: "Logística Rápida Ltda",  tipo: "Classificação",plataforma: "Power Automate",slaSegundos: 35,  statusRobo: "erro",    descricao: "Classifica cargas por rota, peso e prioridade automaticamente",           icone: "fa-layer-group",  versao: "1.0.3" },
-
-  // Financeira Norte S.A
-  { id: 9,  nome: "Processador de Boletos",   cliente: "Financeira Norte S.A",   tipo: "Financeiro",   plataforma: "Automation Anywhere", slaSegundos: 90,  horarioCritico: "16-18", statusRobo: "ativo", descricao: "Processa e registra boletos bancários no sistema de cobrança", icone: "fa-barcode", versao: "5.3.0" },
-  { id: 10, nome: "Conciliador Bancário",     cliente: "Financeira Norte S.A",   tipo: "Conciliação",  plataforma: "Blue Prism",    slaSegundos: 120, statusRobo: "ativo",   descricao: "Concilia extratos bancários com movimentações do ERP financeiro",         icone: "fa-scale-balanced", versao: "2.4.1" },
-  { id: 11, nome: "Analisador de Crédito",    cliente: "Financeira Norte S.A",   tipo: "Análise",      plataforma: "UiPath",        slaSegundos: 200, statusRobo: "ativo",   descricao: "Analisa proposta de crédito e consulta bureaus externos (Serasa/SPC)",    icone: "fa-chart-pie",    versao: "3.0.0" },
-  { id: 12, nome: "Gerador de DARFs",         cliente: "Financeira Norte S.A",   tipo: "Geração",      plataforma: "Power Automate",slaSegundos: 60,  statusRobo: "pausado", descricao: "Calcula e emite DARFs de tributos federais automaticamente",              icone: "fa-receipt",      versao: "1.2.1" },
-
-  // Varejo Sul Comércio
-  { id: 13, nome: "Extrator de Notas",        cliente: "Varejo Sul Comércio",    tipo: "Coleta",       plataforma: "UiPath",        slaSegundos: 25,  statusRobo: "ativo",   descricao: "Extrai notas fiscais de portais estaduais e consolida em banco de dados", icone: "fa-file-export",  versao: "2.1.4" },
-  { id: 14, nome: "Monitor de Preços",        cliente: "Varejo Sul Comércio",    tipo: "Web Scraping", plataforma: "UiPath",        slaSegundos: 180, statusRobo: "ativo",   descricao: "Monitora preços de concorrentes em e-commerces e marketplaces",           icone: "fa-tag",          versao: "4.2.0" },
-  { id: 15, nome: "Sincronizador E-commerce", cliente: "Varejo Sul Comércio",    tipo: "Integração",   plataforma: "Automation Anywhere", slaSegundos: 45, statusRobo: "ativo", descricao: "Sincroniza catálogo, preços e estoque entre WooCommerce e ERP",      icone: "fa-shop",         versao: "3.3.1" },
-  { id: 16, nome: "Processador de Devoluções",cliente: "Varejo Sul Comércio",    tipo: "Processamento",plataforma: "Blue Prism",    slaSegundos: 80,  statusRobo: "erro",    descricao: "Processa solicitações de devolução e aciona fluxo de reembolso",          icone: "fa-rotate-left",  versao: "2.0.2" },
-
-  // DB Interno
-  { id: 17, nome: "Gerador de Relatórios",    cliente: "DB Softwares (Interno)", tipo: "Reporting",    plataforma: "Power Automate",slaSegundos: 300, statusRobo: "ativo",   descricao: "Consolida métricas de todos os clientes e gera relatório executivo diário",icone: "fa-chart-column", versao: "1.5.0" },
-  { id: 18, nome: "Monitor de Infraestrutura",cliente: "DB Softwares (Interno)", tipo: "Monitoramento",plataforma: "UiPath",        slaSegundos: 10,  statusRobo: "ativo",   descricao: "Monitora disponibilidade dos servidores e envia alertas via e-mail",      icone: "fa-server",       versao: "2.1.0" },
+// ---- Robôs do Cliente Rocha (14 ativos) ----
+const robosRocha = [
+  { id: 101, nome: "Validador NF-e",            cliente: "Cliente Rocha", tipo: "Validação",     plataforma: "UiPath",              slaSegundos: 45,  horarioCritico: "14-15", statusRobo: "ativo",   descricao: "Valida notas fiscais eletrônicas antes de registrar no ERP",              icone: "fa-file-invoice",         versao: "3.2.1" },
+  { id: 102, nome: "Integrador ERP",            cliente: "Cliente Rocha", tipo: "Integração",    plataforma: "Automation Anywhere", slaSegundos: 30,  statusRobo: "ativo",   descricao: "Sincroniza dados entre sistemas SAP e Oracle",                              icone: "fa-arrows-rotate",        versao: "2.0.4" },
+  { id: 103, nome: "Emissor de Certificados",   cliente: "Cliente Rocha", tipo: "Geração",       plataforma: "Power Automate",      slaSegundos: 15,  statusRobo: "ativo",   descricao: "Emite certificados de qualidade após aprovação de lote",                    icone: "fa-certificate",          versao: "1.1.0" },
+  { id: 104, nome: "Auditor Fiscal",            cliente: "Cliente Rocha", tipo: "Auditoria",     plataforma: "UiPath",              slaSegundos: 120, statusRobo: "ativo",   descricao: "Revisa obrigações fiscais e gera relatório de auditoria",                   icone: "fa-magnifying-glass-chart",versao: "1.3.2" },
+  { id: 105, nome: "Processador de Boletos",    cliente: "Cliente Rocha", tipo: "Financeiro",    plataforma: "Automation Anywhere", slaSegundos: 90,  statusRobo: "ativo",   descricao: "Processa e registra boletos bancários no sistema de cobrança",              icone: "fa-barcode",              versao: "5.3.0" },
+  { id: 106, nome: "Conciliador Bancário",      cliente: "Cliente Rocha", tipo: "Conciliação",   plataforma: "Blue Prism",          slaSegundos: 120, statusRobo: "ativo",   descricao: "Concilia extratos bancários com movimentações do ERP financeiro",           icone: "fa-scale-balanced",       versao: "2.4.1" },
+  { id: 107, nome: "Extrator de Notas",         cliente: "Cliente Rocha", tipo: "Coleta",        plataforma: "UiPath",              slaSegundos: 25,  statusRobo: "ativo",   descricao: "Extrai notas fiscais de portais estaduais e consolida em banco de dados",   icone: "fa-file-export",          versao: "2.1.4" },
+  { id: 108, nome: "Monitor de Preços",         cliente: "Cliente Rocha", tipo: "Web Scraping",  plataforma: "UiPath",              slaSegundos: 180, statusRobo: "ativo",   descricao: "Monitora preços de concorrentes em e-commerces e marketplaces",             icone: "fa-tag",                  versao: "4.2.0" },
+  { id: 109, nome: "Gestor de Estoque",         cliente: "Cliente Rocha", tipo: "Processamento", plataforma: "UiPath",              slaSegundos: 60,  statusRobo: "ativo",   descricao: "Atualiza níveis de estoque em tempo real com base nas entradas/saídas",    icone: "fa-boxes-stacked",        versao: "4.0.1" },
+  { id: 110, nome: "Rastreador de Entregas",    cliente: "Cliente Rocha", tipo: "Monitoramento", plataforma: "UiPath",              slaSegundos: 20,  statusRobo: "ativo",   descricao: "Monitora status de entregas em múltiplas transportadoras",                  icone: "fa-truck-fast",           versao: "3.1.0" },
+  { id: 111, nome: "Gerador de DARFs",          cliente: "Cliente Rocha", tipo: "Geração",       plataforma: "Power Automate",      slaSegundos: 60,  statusRobo: "ativo",   descricao: "Calcula e emite DARFs de tributos federais automaticamente",                icone: "fa-receipt",              versao: "1.2.1" },
+  { id: 112, nome: "Analisador de Crédito",     cliente: "Cliente Rocha", tipo: "Análise",       plataforma: "UiPath",              slaSegundos: 200, statusRobo: "ativo",   descricao: "Analisa proposta de crédito e consulta bureaus externos (Serasa/SPC)",      icone: "fa-chart-pie",            versao: "3.0.0" },
+  { id: 113, nome: "Sincronizador E-commerce",  cliente: "Cliente Rocha", tipo: "Integração",    plataforma: "Automation Anywhere", slaSegundos: 45,  statusRobo: "ativo",   descricao: "Sincroniza catálogo, preços e estoque entre WooCommerce e ERP",            icone: "fa-shop",                 versao: "3.3.1" },
+  { id: 114, nome: "Importador XML",            cliente: "Cliente Rocha", tipo: "Importação",    plataforma: "Blue Prism",          slaSegundos: 40,  statusRobo: "ativo",   descricao: "Importa arquivos XML de fornecedores e popula banco de dados",              icone: "fa-file-code",            versao: "2.2.0" },
 ];
+
+// ---- Robôs do Cliente Autus (22 ativos) ----
+const robosAutus = [
+  { id: 201, nome: "Validador Fiscal",          cliente: "Cliente Autus", tipo: "Validação",     plataforma: "UiPath",              slaSegundos: 50,  statusRobo: "ativo",   descricao: "Valida obrigações fiscais e documentos eletrônicos",                        icone: "fa-file-invoice",         versao: "2.1.0" },
+  { id: 202, nome: "Integrador SAP",            cliente: "Cliente Autus", tipo: "Integração",    plataforma: "SAP iRPA",            slaSegundos: 35,  statusRobo: "ativo",   descricao: "Sincroniza dados entre módulos SAP FI e MM",                                icone: "fa-arrows-rotate",        versao: "3.0.1" },
+  { id: 203, nome: "Emissor NF-e",              cliente: "Cliente Autus", tipo: "Geração",       plataforma: "Power Automate",      slaSegundos: 20,  statusRobo: "ativo",   descricao: "Emite notas fiscais eletrônicas para pedidos aprovados",                    icone: "fa-file-lines",           versao: "1.8.0" },
+  { id: 204, nome: "Conciliador Financeiro",    cliente: "Cliente Autus", tipo: "Conciliação",   plataforma: "Blue Prism",          slaSegundos: 100, statusRobo: "ativo",   descricao: "Concilia movimentos financeiros com dados do ERP",                          icone: "fa-scale-balanced",       versao: "2.2.0" },
+  { id: 205, nome: "Monitor de SLA",            cliente: "Cliente Autus", tipo: "Monitoramento", plataforma: "UiPath",              slaSegundos: 15,  statusRobo: "ativo",   descricao: "Monitora cumprimento de SLA de processos críticos",                         icone: "fa-gauge-high",           versao: "1.5.0" },
+  { id: 206, nome: "Processador de Faturas",    cliente: "Cliente Autus", tipo: "Financeiro",    plataforma: "Automation Anywhere", slaSegundos: 80,  statusRobo: "ativo",   descricao: "Processa faturas de fornecedores e registra no contas a pagar",             icone: "fa-file-invoice-dollar",  versao: "4.1.0" },
+  { id: 207, nome: "Extrator de Relatórios",    cliente: "Cliente Autus", tipo: "Coleta",        plataforma: "UiPath",              slaSegundos: 30,  statusRobo: "ativo",   descricao: "Extrai relatórios gerenciais de sistemas legados",                          icone: "fa-file-export",          versao: "2.0.3" },
+  { id: 208, nome: "Gestor de Contratos",       cliente: "Cliente Autus", tipo: "Processamento", plataforma: "Power Automate",      slaSegundos: 90,  statusRobo: "ativo",   descricao: "Gerencia ciclo de vida de contratos e vencimentos",                         icone: "fa-file-signature",       versao: "1.4.2" },
+  { id: 209, nome: "Analisador de RH",          cliente: "Cliente Autus", tipo: "Análise",       plataforma: "UiPath",              slaSegundos: 120, statusRobo: "ativo",   descricao: "Analisa dados de folha de pagamento e ponto eletrônico",                    icone: "fa-users",                versao: "3.1.0" },
+  { id: 210, nome: "Importador de Pedidos",     cliente: "Cliente Autus", tipo: "Importação",    plataforma: "Automation Anywhere", slaSegundos: 40,  statusRobo: "ativo",   descricao: "Importa pedidos de vendas de plataformas externas",                         icone: "fa-cart-arrow-down",      versao: "2.3.1" },
+  { id: 211, nome: "Conciliador de Estoque",    cliente: "Cliente Autus", tipo: "Conciliação",   plataforma: "Blue Prism",          slaSegundos: 75,  statusRobo: "ativo",   descricao: "Concilia inventário físico com registros no sistema",                       icone: "fa-boxes-stacked",        versao: "1.9.0" },
+  { id: 212, nome: "Gerador de Guias",          cliente: "Cliente Autus", tipo: "Geração",       plataforma: "Power Automate",      slaSegundos: 55,  statusRobo: "ativo",   descricao: "Gera guias de recolhimento de tributos automaticamente",                    icone: "fa-receipt",              versao: "2.0.0" },
+  { id: 213, nome: "Monitor de Compliance",     cliente: "Cliente Autus", tipo: "Auditoria",     plataforma: "UiPath",              slaSegundos: 200, statusRobo: "ativo",   descricao: "Verifica conformidade regulatória de processos operacionais",               icone: "fa-shield-check",         versao: "1.2.0" },
+  { id: 214, nome: "Sincronizador CRM",         cliente: "Cliente Autus", tipo: "Integração",    plataforma: "Automation Anywhere", slaSegundos: 45,  statusRobo: "ativo",   descricao: "Sincroniza dados de clientes entre CRM e ERP",                             icone: "fa-handshake",            versao: "3.0.2" },
+  { id: 215, nome: "Processador de Devoluções", cliente: "Cliente Autus", tipo: "Processamento", plataforma: "UiPath",              slaSegundos: 70,  statusRobo: "ativo",   descricao: "Processa solicitações de devolução e aciona fluxo de reembolso",            icone: "fa-rotate-left",          versao: "2.1.0" },
+  { id: 216, nome: "Agendador de Tarefas",      cliente: "Cliente Autus", tipo: "Agendamento",   plataforma: "Power Automate",      slaSegundos: 10,  statusRobo: "ativo",   descricao: "Gerencia e orquestra execução de automações com dependências",              icone: "fa-calendar-check",       versao: "1.7.0" },
+  { id: 217, nome: "Extrator Bancário",         cliente: "Cliente Autus", tipo: "Coleta",        plataforma: "Blue Prism",          slaSegundos: 60,  statusRobo: "ativo",   descricao: "Extrai extratos e comprovantes bancários para conciliação",                 icone: "fa-building-columns",     versao: "2.4.0" },
+  { id: 218, nome: "Gerador de Relatórios",     cliente: "Cliente Autus", tipo: "Reporting",     plataforma: "UiPath",              slaSegundos: 180, statusRobo: "ativo",   descricao: "Consolida dados operacionais e gera relatórios executivos",                 icone: "fa-chart-column",         versao: "1.6.0" },
+  { id: 219, nome: "Monitor de Preços",         cliente: "Cliente Autus", tipo: "Web Scraping",  plataforma: "Automation Anywhere", slaSegundos: 150, statusRobo: "ativo",   descricao: "Monitora preços de insumos e commodities em portais externos",             icone: "fa-tag",                  versao: "3.2.0" },
+  { id: 220, nome: "Validador de Crédito",      cliente: "Cliente Autus", tipo: "Análise",       plataforma: "UiPath",              slaSegundos: 90,  statusRobo: "ativo",   descricao: "Valida limites de crédito de clientes em bureaus externos",                icone: "fa-credit-card",          versao: "2.0.1" },
+  { id: 221, nome: "Processador de Folha",      cliente: "Cliente Autus", tipo: "Financeiro",    plataforma: "SAP iRPA",            slaSegundos: 300, statusRobo: "ativo",   descricao: "Automatiza cálculo e processamento da folha de pagamento mensal",           icone: "fa-money-bill-wave",      versao: "4.0.0" },
+  { id: 222, nome: "Rastreador de Logística",   cliente: "Cliente Autus", tipo: "Monitoramento", plataforma: "Power Automate",      slaSegundos: 25,  statusRobo: "ativo",   descricao: "Rastreia entregas e notifica desvios de rota ou atrasos",                  icone: "fa-truck-fast",           versao: "1.3.0" },
+];
+
+// Lista global de robôs (todos, para admin / DB Softwares)
+const robosAll = [...robosRocha, ...robosAutus];
+
+// Retorna a lista de robôs filtrada pelo usuário logado
+function getRobosByUser() {
+  if (currentUser.role === 'dbsoftwares') return robosAll;
+  if (currentUser.username === 'rocha') return robosRocha;
+  if (currentUser.username === 'autus') return robosAutus;
+  return [];
+}
+
+// Robôs visíveis no contexto atual
+let robos = getRobosByUser();
 
 // Função para gerar data aleatória nos últimos N dias
 function gerarDataAleatoria(diasAtras = 7) {
@@ -276,7 +317,7 @@ function gerarTicketsNOC() {
 }
 
 // ==================== ESTADO GLOBAL ====================
-let currentMode = "cliente";
+let currentMode = currentUser.role; // "dbsoftwares" | "cliente"
 let currentView = "executions";
 let period = "week";
 let processFilter = "all";
@@ -288,7 +329,7 @@ let execChart, slaChart, robotsChart, clientsChart;
 // ==================== UTILITÁRIOS ====================
 function filterExecutions() {
   let filtered = [...executionsData];
-  
+
   // Filtro por período
   const now = new Date();
   filtered = filtered.filter(e => {
@@ -298,17 +339,17 @@ function filterExecutions() {
     if (period === "month") return diff <= 30;
     return true;
   });
-  
+
   // Filtro por processo (robô)
   if (processFilter !== "all") {
     filtered = filtered.filter(e => e.roboNome === processFilter);
   }
-  
-  // Filtro por cliente (modo NOC)
-  if (currentMode === "noc" && clienteFilter !== "all") {
+
+  // Filtro por cliente (admin com seletor de cliente)
+  if (currentUser.role === 'dbsoftwares' && clienteFilter !== "all") {
     filtered = filtered.filter(e => e.cliente === clienteFilter);
   }
-  
+
   return filtered;
 }
 
@@ -485,8 +526,8 @@ function showModal(exec) {
 }
 
 function renderNocViews() {
-  if (currentMode !== 'noc') return;
-  
+  if (currentUser.role !== 'dbsoftwares') return;
+
   const tickets = gerarTicketsNOC();
   const ticketsBody = document.getElementById('ticketsTableBody');
   ticketsBody.innerHTML = '';
@@ -507,37 +548,59 @@ function renderNocViews() {
   }
 }
 
-// ==================== EVENTOS E INICIALIZAÇÃO ====================
-function toggleMode() {
-  const isNoc = document.getElementById('modeToggle').checked;
-  currentMode = isNoc ? 'noc' : 'cliente';
+// ==================== INICIALIZAÇÃO DO MODO DE USUÁRIO ====================
+function initUserMode() {
+  const isAdmin = currentUser.role === 'dbsoftwares';
 
-  // Textos e badges de modo
-  document.getElementById('modeText').innerText = isNoc ? 'Modo NOC' : 'Modo Cliente';
-  document.getElementById('roleBadge').innerHTML = isNoc ? '<i class="fas fa-shield-halved"></i> NOC Operador' : '<i class="fas fa-eye"></i> Cliente';
+  // Badge de papel na topbar
+  const roleBadge = document.getElementById('roleBadge');
+  if (roleBadge) {
+    if (isAdmin) {
+      roleBadge.innerHTML = '<i class="fas fa-shield-halved"></i> DB Softwares';
+    } else {
+      roleBadge.innerHTML = `<i class="fas fa-building"></i> ${currentUser.displayName}`;
+    }
+  }
 
-  // Sidebar: usuário e avatar
-  const sidebarRole = document.getElementById('sidebarUserRole');
+  // Nome do cliente na topbar
+  const clienteNomeEl = document.getElementById('clienteNome');
+  if (clienteNomeEl) {
+    clienteNomeEl.innerHTML = `<i class="fas fa-building"></i> ${currentUser.clienteNome}`;
+  }
+
+  // Avatar
+  const initials = currentUser.displayName.substring(0, 2).toUpperCase();
+  const userAvatar = document.getElementById('userAvatar');
+  if (userAvatar) userAvatar.textContent = initials;
+
+  // Sidebar: nome e role
   const sidebarName = document.getElementById('sidebarUserName');
-  if (sidebarRole) sidebarRole.textContent = isNoc ? 'NOC Operador' : 'Cliente';
-  if (sidebarName) sidebarName.textContent = isNoc ? 'Administrador' : 'Usuário';
+  const sidebarRole = document.getElementById('sidebarUserRole');
+  const sidebarAvatar = document.getElementById('sidebarAvatar');
+  if (sidebarName) sidebarName.textContent = currentUser.displayName;
+  if (sidebarRole) sidebarRole.textContent = isAdmin ? 'Administrador' : 'Cliente';
+  if (sidebarAvatar) sidebarAvatar.textContent = initials;
 
-  // Grupo NOC no menu
+  // Grupo DB Softwares (admin) no menu
   const nocGroup = document.getElementById('nocGroup');
-  const nocDiv = document.getElementById('nocDivider');
-  if (nocGroup) nocGroup.style.display = isNoc ? 'block' : 'none';
-  if (nocDiv) nocDiv.style.display = isNoc ? 'block' : 'none';
-  
-  // Adiciona filtro de cliente no modo NOC
-  let filterBar = document.querySelector('.filters-bar');
+  const nocDiv   = document.getElementById('nocDivider');
+  if (nocGroup) nocGroup.style.display = isAdmin ? 'block' : 'none';
+  if (nocDiv)   nocDiv.style.display   = isAdmin ? 'block' : 'none';
+
+  // Filtro de cliente na filters-bar (admin vê todos, cliente não)
+  const filterBar = document.querySelector('.filters-bar');
   let existingFilter = document.getElementById('clienteFilterGroup');
-  if (currentMode === 'noc' && !existingFilter) {
+  if (isAdmin && !existingFilter) {
     const div = document.createElement('div');
     div.className = 'filter-group';
     div.id = 'clienteFilterGroup';
     div.innerHTML = `<label><i class="fas fa-building"></i> Cliente</label>
-                     <select id="clienteFilterSelect"><option value="all">Todos</option></select>`;
-    filterBar.insertBefore(div, filterBar.children[2]);
+                     <select id="clienteFilterSelect">
+                       <option value="all">Todos os clientes</option>
+                       <option value="Cliente Rocha">Rocha</option>
+                       <option value="Cliente Autus">Autus</option>
+                     </select>`;
+    if (filterBar) filterBar.insertBefore(div, filterBar.children[2]);
     document.getElementById('clienteFilterSelect').addEventListener('change', (e) => {
       clienteFilter = e.target.value;
       renderStats();
@@ -545,18 +608,13 @@ function toggleMode() {
       renderExceptions();
       renderCharts();
     });
-  } else if (currentMode !== 'noc' && existingFilter) {
-    existingFilter.remove();
   }
-  
-  if (currentMode === 'noc') renderNocViews();
-  renderStats();
-  renderExecutionsTable();
 }
 
 function changeView(viewId) {
   currentView = viewId;
-  const views = ['executions','automations','sla','insights','agenda','relatorios','notificacoes','configuracoes','monitor','admin','clients'];
+  const isAdmin = currentUser.role === 'dbsoftwares';
+  const views = ['executions','automations','sla','insights','agenda','relatorios','notificacoes','configuracoes','monitor','admin','clients','gestao'];
   views.forEach(v => {
     const key = v.charAt(0).toUpperCase() + v.slice(1);
     const el = document.getElementById(`view${key}`);
@@ -579,6 +637,7 @@ function changeView(viewId) {
     monitor:        { icon: 'fa-display',            label: 'Monitor em Tempo Real' },
     admin:          { icon: 'fa-tower-broadcast',    label: 'Admin & Tickets' },
     clients:        { icon: 'fa-users',              label: 'Clientes (Visao Geral)' },
+    gestao:         { icon: 'fa-chart-pie',          label: 'Gestao de Clientes' },
   };
   if (titles[viewId]) {
     document.getElementById('pageTitle').innerHTML = `<h2><i class="fas ${titles[viewId].icon}"></i> ${titles[viewId].label}</h2>`;
@@ -616,14 +675,14 @@ function changeView(viewId) {
   if (viewId === 'configuracoes') {
     renderConfiguracoesView();
   }
-  if (viewId === 'monitor' && currentMode === 'noc') {
+  if (viewId === 'monitor' && isAdmin) {
     renderMonitorView();
   }
-  if (viewId === 'admin' && currentMode === 'noc') renderNocViews();
+  if (viewId === 'admin' && isAdmin) renderNocViews();
+  if (viewId === 'gestao' && isAdmin) renderGestaoView();
 }
 
 function initEventListeners() {
-  document.getElementById('modeToggle').addEventListener('change', toggleMode);
   document.getElementById('applyFiltersBtn').addEventListener('click', () => {
     period = document.getElementById('periodFilter').value;
     processFilter = document.getElementById('processFilter').value;
@@ -632,19 +691,20 @@ function initEventListeners() {
     renderExceptions();
     renderCharts();
   });
-  
+
   document.querySelectorAll('.nav-item[data-view]').forEach(el => {
     el.addEventListener('click', () => {
       const view = el.getAttribute('data-view');
-      if (view === 'admin' && currentMode !== 'noc') return;
+      const isAdmin = currentUser.role === 'dbsoftwares';
+      if ((view === 'admin' || view === 'monitor' || view === 'gestao') && !isAdmin) return;
       changeView(view);
     });
   });
-  
+
   document.querySelector('.close-modal').onclick = () => document.getElementById('detailModal').style.display = 'none';
   window.onclick = (e) => { if(e.target === document.getElementById('detailModal')) document.getElementById('detailModal').style.display = 'none'; };
-  
-  // Popula filtro de processos
+
+  // Popula filtro de processos com robôs do usuário atual
   const processSelect = document.getElementById('processFilter');
   const robosUnicos = getUniqueRobos();
   processSelect.innerHTML = '<option value="all">Todos os robôs</option>' + robosUnicos.map(r => `<option value="${r.nome}">${r.nome}</option>`).join('');
@@ -1117,6 +1177,14 @@ function toggleNotifPref(id, val) {
 
 // ==================== VIEW: CONFIGURAÇÕES ====================
 function renderConfiguracoesView() {
+  // Preenche campos de perfil com dados do usuário logado
+  const nomeInput    = document.getElementById('cfgNomeOperador');
+  const emailInput   = document.getElementById('cfgEmail');
+  const clienteInput = document.getElementById('cfgCliente');
+  if (nomeInput)    nomeInput.value    = currentUser.displayName;
+  if (emailInput)   emailInput.value   = currentUser.username + '@dbsoftwares.com.br';
+  if (clienteInput) clienteInput.value = currentUser.clienteNome;
+
   const togEl = document.getElementById('configToggles');
   if (togEl) {
     togEl.innerHTML = notifPrefs.map(p => `
@@ -1619,7 +1687,204 @@ function initAutomacaoFilters() {
 
 // ==================== FIM VIEW AUTOMAÇÕES ====================
 
+// ==================== VIEW: GESTÃO DE CLIENTES (DB Softwares) ====================
+let gestaoRobosChart = null;
+let gestaoSucessoChart = null;
+
+function renderGestaoView() {
+  if (currentUser.role !== 'dbsoftwares') return;
+
+  const clientes = [
+    { key: 'rocha', label: 'Rocha',  clienteStr: 'Cliente Rocha', robos: robosRocha, cor: '#3E569E' },
+    { key: 'autus', label: 'Autus',  clienteStr: 'Cliente Autus', robos: robosAutus, cor: '#BDA07E' },
+  ];
+
+  // Stats globais
+  const totalRobos = robosAll.length;
+  const totalAtivos = robosAll.filter(r => r.statusRobo === 'ativo').length;
+  const totalErro   = robosAll.filter(r => r.statusRobo === 'erro').length;
+  const execsAll    = executionsData.filter(e => {
+    const diff = (new Date() - new Date(e.datetime)) / (1000 * 3600 * 24);
+    return diff <= 7;
+  });
+  const taxaGlobal  = execsAll.length ? ((execsAll.filter(e => e.status === 'sucesso').length / execsAll.length) * 100).toFixed(1) : '0.0';
+
+  const globalStats = document.getElementById('gestaoGlobalStats');
+  if (globalStats) {
+    globalStats.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-title"><i class="fas fa-users"></i> Clientes ativos</div>
+        <div class="stat-number">${clientes.length}</div>
+        <div class="stat-trend">Rocha &amp; Autus</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title"><i class="fas fa-robot"></i> Total de robôs</div>
+        <div class="stat-number">${totalRobos}</div>
+        <div class="stat-trend trend-up">${totalAtivos} ativos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title"><i class="fas fa-check-circle" style="color:var(--db-success)"></i> Taxa de sucesso (7d)</div>
+        <div class="stat-number" style="color:var(--db-success)">${taxaGlobal}%</div>
+        <div class="stat-trend trend-up">Média consolidada</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title"><i class="fas fa-triangle-exclamation" style="color:var(--db-danger)"></i> Robôs com erro</div>
+        <div class="stat-number" style="color:var(--db-danger)">${totalErro}</div>
+        <div class="stat-trend ${totalErro > 0 ? 'trend-down' : 'trend-up'}">${totalErro > 0 ? 'Requerem atenção' : 'Operação normal'}</div>
+      </div>
+    `;
+  }
+
+  // Cards por cliente
+  const grid = document.getElementById('gestaoClientesGrid');
+  if (grid) {
+    grid.innerHTML = clientes.map(c => {
+      const robosCliente = c.robos;
+      const ativos = robosCliente.filter(r => r.statusRobo === 'ativo').length;
+      const erros  = robosCliente.filter(r => r.statusRobo === 'erro').length;
+      const execsCliente = executionsData.filter(e => {
+        const diff = (new Date() - new Date(e.datetime)) / (1000 * 3600 * 24);
+        return e.cliente === c.clienteStr && diff <= 7;
+      });
+      const taxa = execsCliente.length
+        ? ((execsCliente.filter(e => e.status === 'sucesso').length / execsCliente.length) * 100).toFixed(1)
+        : '0.0';
+      const notifCliente = notificacoes.filter(n => {
+        const robo = robosAll.find(r => r.id === n.roboId);
+        return robo && robo.cliente === c.clienteStr && !n.lida;
+      }).length;
+
+      return `
+        <div class="gestao-cliente-card">
+          <div class="gcc-header" style="border-left: 4px solid ${c.cor}">
+            <div class="gcc-avatar" style="background:${c.cor}20;color:${c.cor}">${c.label.substring(0,2).toUpperCase()}</div>
+            <div class="gcc-info">
+              <div class="gcc-nome">${c.label}</div>
+              <div class="gcc-sub">${c.clienteStr}</div>
+            </div>
+            ${notifCliente > 0 ? `<span class="nav-badge nav-badge-danger" style="margin-left:auto">${notifCliente} alerta${notifCliente > 1 ? 's' : ''}</span>` : ''}
+          </div>
+          <div class="gcc-stats">
+            <div class="gcc-stat">
+              <span class="gcc-stat-num">${robosCliente.length}</span>
+              <span class="gcc-stat-lbl">Robôs</span>
+            </div>
+            <div class="gcc-stat">
+              <span class="gcc-stat-num" style="color:var(--db-success)">${ativos}</span>
+              <span class="gcc-stat-lbl">Ativos</span>
+            </div>
+            <div class="gcc-stat">
+              <span class="gcc-stat-num" style="color:var(--db-danger)">${erros}</span>
+              <span class="gcc-stat-lbl">Erros</span>
+            </div>
+            <div class="gcc-stat">
+              <span class="gcc-stat-num">${execsCliente.length}</span>
+              <span class="gcc-stat-lbl">Execuções (7d)</span>
+            </div>
+          </div>
+          <div class="gcc-sla-row">
+            <span style="font-size:0.75rem;color:var(--db-text-muted)">Taxa de sucesso</span>
+            <span style="font-weight:700;color:${parseFloat(taxa) >= 85 ? 'var(--db-success)' : 'var(--db-warning)'}">${taxa}%</span>
+          </div>
+          <div class="robot-progress-bar" style="margin-top:4px">
+            <div class="robot-progress-fill" style="width:${taxa}%;background:${parseFloat(taxa) >= 85 ? 'var(--db-success)' : 'var(--db-warning)'}"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Gráfico robôs por cliente
+  const ctx1 = document.getElementById('gestaoRobosChart');
+  if (ctx1) {
+    if (gestaoRobosChart) gestaoRobosChart.destroy();
+    gestaoRobosChart = new Chart(ctx1.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: clientes.map(c => c.label),
+        datasets: [{
+          label: 'Robôs ativos',
+          data: clientes.map(c => c.robos.filter(r => r.statusRobo === 'ativo').length),
+          backgroundColor: clientes.map(c => c.cor + 'CC'),
+          borderRadius: 10,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 2 } } }
+      }
+    });
+  }
+
+  // Gráfico taxa sucesso por cliente
+  const ctx2 = document.getElementById('gestaoSucessoChart');
+  if (ctx2) {
+    if (gestaoSucessoChart) gestaoSucessoChart.destroy();
+    const taxas = clientes.map(c => {
+      const execs = executionsData.filter(e => {
+        const diff = (new Date() - new Date(e.datetime)) / (1000 * 3600 * 24);
+        return e.cliente === c.clienteStr && diff <= 7;
+      });
+      return execs.length ? ((execs.filter(e => e.status === 'sucesso').length / execs.length) * 100).toFixed(1) : 0;
+    });
+    gestaoSucessoChart = new Chart(ctx2.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: clientes.map(c => c.label),
+        datasets: [{
+          label: 'Taxa de sucesso (%)',
+          data: taxas,
+          backgroundColor: taxas.map((v, i) => parseFloat(v) >= 85 ? 'rgba(31,122,77,0.75)' : 'rgba(196,125,10,0.75)'),
+          borderRadius: 10,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } }
+      }
+    });
+  }
+
+  // Alertas por cliente
+  const alertasList = document.getElementById('gestaoAlertasList');
+  if (alertasList) {
+    const alertasAdmin = notificacoes.filter(n => {
+      const robo = robosAll.find(r => r.id === n.roboId);
+      return robo !== undefined;
+    });
+    const iconMap  = { critica:'fa-triangle-exclamation', aviso:'fa-circle-exclamation', info:'fa-circle-info' };
+    const colorMap = { critica:'var(--db-danger)', aviso:'var(--db-warning)', info:'var(--db-blue)' };
+    const bgMap    = { critica:'var(--db-danger-bg)', aviso:'var(--db-warning-bg)', info:'rgba(62,86,158,0.08)' };
+
+    alertasList.innerHTML = alertasAdmin.length === 0
+      ? '<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>Nenhum alerta encontrado.</p></div>'
+      : alertasAdmin.slice(0, 8).map(n => {
+          const robo = robosAll.find(r => r.id === n.roboId);
+          const mins = Math.round((Date.now() - n.tempo) / 60000);
+          const tempoStr = mins < 60 ? `${mins}min atrás` : mins < 1440 ? `${Math.round(mins/60)}h atrás` : `${Math.round(mins/1440)}d atrás`;
+          return `
+            <div class="notif-item ${n.lida ? 'notif-lida' : ''}" onclick="lerNotif(${n.id});renderGestaoView()">
+              <div class="notif-icon" style="background:${bgMap[n.tipo]};color:${colorMap[n.tipo]}">
+                <i class="fas ${iconMap[n.tipo]}"></i>
+              </div>
+              <div class="notif-body">
+                <div class="notif-titulo">${n.titulo}</div>
+                <div class="notif-desc">${n.descricao}${robo ? ` — <strong>${robo.cliente}</strong>` : ''}</div>
+                <div class="notif-tempo">${tempoStr}</div>
+              </div>
+              ${!n.lida ? '<div class="notif-dot"></div>' : ''}
+            </div>
+          `;
+        }).join('');
+  }
+}
+
 function init() {
+  initUserMode();
   initEventListeners();
   changeView('executions');
   renderStats();
