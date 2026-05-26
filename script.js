@@ -547,15 +547,34 @@ function toggleMode() {
 
 function changeView(viewId) {
   currentView = viewId;
-  const views = ['executions','automations','sla','insights','admin','clients'];
+  const views = ['executions','automations','sla','insights','agenda','relatorios','notificacoes','configuracoes','monitor','admin','clients'];
   views.forEach(v => {
-    const el = document.getElementById(`view${v.charAt(0).toUpperCase() + v.slice(1)}`);
+    const key = v.charAt(0).toUpperCase() + v.slice(1);
+    const el = document.getElementById(`view${key}`);
     if (el) el.className = (v === viewId) ? 'view-active' : 'view-hidden';
   });
-  
+
   document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-  document.querySelector(`[data-view="${viewId}"]`).classList.add('active');
-  
+  const activeNav = document.querySelector(`[data-view="${viewId}"]`);
+  if (activeNav) activeNav.classList.add('active');
+
+  const titles = {
+    executions:     { icon: 'fa-chart-line',        label: 'Painel de Execucoes' },
+    automations:    { icon: 'fa-robot',              label: 'Automacoes' },
+    sla:            { icon: 'fa-chart-simple',       label: 'SLA & Performance' },
+    insights:       { icon: 'fa-brain',              label: 'Insights IA' },
+    agenda:         { icon: 'fa-calendar-days',      label: 'Agenda & Agendamentos' },
+    relatorios:     { icon: 'fa-file-chart-column',  label: 'Relatorios' },
+    notificacoes:   { icon: 'fa-bell',               label: 'Notificacoes' },
+    configuracoes:  { icon: 'fa-sliders',            label: 'Configuracoes' },
+    monitor:        { icon: 'fa-display',            label: 'Monitor em Tempo Real' },
+    admin:          { icon: 'fa-tower-broadcast',    label: 'Admin & Tickets' },
+    clients:        { icon: 'fa-users',              label: 'Clientes (Visao Geral)' },
+  };
+  if (titles[viewId]) {
+    document.getElementById('pageTitle').innerHTML = `<h2><i class="fas ${titles[viewId].icon}"></i> ${titles[viewId].label}</h2>`;
+  }
+
   if (viewId === 'executions') {
     renderStats();
     renderExecutionsTable();
@@ -573,6 +592,23 @@ function changeView(viewId) {
   }
   if (viewId === 'insights') {
     renderInsightsView();
+  }
+  if (viewId === 'agenda') {
+    renderAgendaView();
+  }
+  if (viewId === 'relatorios') {
+    renderRelatoriosView();
+  }
+  if (viewId === 'notificacoes') {
+    renderNotificacoes();
+    renderNotifPrefs();
+    renderNotifStats();
+  }
+  if (viewId === 'configuracoes') {
+    renderConfiguracoesView();
+  }
+  if (viewId === 'monitor' && currentMode === 'noc') {
+    renderMonitorView();
   }
   if (viewId === 'admin' && currentMode === 'noc') renderNocViews();
 }
@@ -603,6 +639,458 @@ function initEventListeners() {
   const processSelect = document.getElementById('processFilter');
   const robosUnicos = getUniqueRobos();
   processSelect.innerHTML = '<option value="all">Todos os robôs</option>' + robosUnicos.map(r => `<option value="${r.nome}">${r.nome}</option>`).join('');
+}
+
+// ==================== DADOS: AGENDAMENTOS ====================
+const agendamentos = [
+  { id:1,  roboId:1,  frequencia:'A cada 2 horas',    cron:'0 */2 * * *',   proximaExec: new Date(Date.now()+3600000),    ultimaExec: new Date(Date.now()-3600000),   status:'ativo'   },
+  { id:2,  roboId:2,  frequencia:'Diario 06:00',       cron:'0 6 * * *',     proximaExec: new Date(Date.now()+14400000),  ultimaExec: new Date(Date.now()-36000000),  status:'ativo'   },
+  { id:3,  roboId:5,  frequencia:'A cada hora',        cron:'0 * * * *',     proximaExec: new Date(Date.now()+1800000),   ultimaExec: new Date(Date.now()-1800000),   status:'ativo'   },
+  { id:4,  roboId:9,  frequencia:'Seg-Sex 16:00',      cron:'0 16 * * 1-5',  proximaExec: new Date(Date.now()+7200000),   ultimaExec: new Date(Date.now()-82800000),  status:'ativo'   },
+  { id:5,  roboId:13, frequencia:'Diario 08:00',       cron:'0 8 * * *',     proximaExec: new Date(Date.now()+18000000),  ultimaExec: new Date(Date.now()-50400000),  status:'ativo'   },
+  { id:6,  roboId:14, frequencia:'A cada 30 minutos',  cron:'*/30 * * * *',  proximaExec: new Date(Date.now()+900000),    ultimaExec: new Date(Date.now()-900000),    status:'ativo'   },
+  { id:7,  roboId:17, frequencia:'Diario 23:00',       cron:'0 23 * * *',    proximaExec: new Date(Date.now()+28800000),  ultimaExec: new Date(Date.now()-7200000),   status:'ativo'   },
+  { id:8,  roboId:4,  frequencia:'Semanal Segunda',    cron:'0 9 * * 1',     proximaExec: new Date(Date.now()+172800000), ultimaExec: new Date(Date.now()-432000000),  status:'pausado' },
+  { id:9,  roboId:10, frequencia:'Diario 07:30',       cron:'30 7 * * *',    proximaExec: new Date(Date.now()+19800000),  ultimaExec: new Date(Date.now()-50400000),  status:'ativo'   },
+  { id:10, roboId:18, frequencia:'A cada 5 minutos',   cron:'*/5 * * * *',   proximaExec: new Date(Date.now()+300000),    ultimaExec: new Date(Date.now()-300000),    status:'ativo'   },
+];
+
+// ==================== DADOS: NOTIFICAÇÕES ====================
+let notificacoes = [
+  { id:1,  tipo:'critica', titulo:'Falha critica — Classificador de Cargas', descricao:'Robo apresentou 5 erros consecutivos. Intervencao necessaria.', tempo: new Date(Date.now()-600000),   lida:false, roboId:8  },
+  { id:2,  tipo:'critica', titulo:'SLA violado — Processador de Devoluções',  descricao:'Taxa de falha atingiu 43%. SLA contratual comprometido.',       tempo: new Date(Date.now()-1800000),  lida:false, roboId:16 },
+  { id:3,  tipo:'aviso',   titulo:'Tempo medio elevado — Conciliador Bancario',descricao:'Tempo medio subiu 32% em relacao a semana anterior.',           tempo: new Date(Date.now()-3600000),  lida:false, roboId:10 },
+  { id:4,  tipo:'info',    titulo:'Agendamento concluido — Gerador de Relatórios', descricao:'Relatorio executivo diario gerado com sucesso.',            tempo: new Date(Date.now()-7200000),  lida:true,  roboId:17 },
+  { id:5,  tipo:'info',    titulo:'Novo robo ativado — Rastreador de Entregas', descricao:'Robo entrou em operacao as 08:00.',                            tempo: new Date(Date.now()-14400000), lida:true,  roboId:7  },
+  { id:6,  tipo:'aviso',   titulo:'Capacidade de UAs em 85%',                  descricao:'Unidades de automacao proximas do limite. Avaliar expansao.',   tempo: new Date(Date.now()-21600000), lida:true,  roboId:null},
+  { id:7,  tipo:'info',    titulo:'Backup de configuracoes realizado',          descricao:'Backup automatico das configuracoes de todos os robos OK.',      tempo: new Date(Date.now()-86400000), lida:true,  roboId:null},
+];
+
+const notifPrefs = [
+  { id:'falha',      label:'Falhas criticas',          desc:'Notificar quando robo falhar 3x seguidas', ativo:true  },
+  { id:'sla',        label:'Violacao de SLA',           desc:'Alertar quando SLA for comprometido',       ativo:true  },
+  { id:'tempo',      label:'Tempo de execucao elevado', desc:'Avisar se tempo subir mais de 30%',         ativo:true  },
+  { id:'agenda',     label:'Conclusao de agendamentos', desc:'Confirmar execucoes agendadas',             ativo:false },
+  { id:'capacidade', label:'Capacidade de UAs',         desc:'Alertar ao atingir 80% da capacidade',     ativo:true  },
+  { id:'backup',     label:'Backups automaticos',       desc:'Confirmar backups de configuracao',         ativo:false },
+];
+
+// ==================== DADOS: RELATÓRIOS ====================
+const relatorios = [
+  { id:1, nome:'Relatorio Executivo — Maio 2025',   tipo:'executivo',   periodo:'01/05 – 31/05/2025', geradoEm: new Date(Date.now()-86400000),  tamanho:'2.4 MB',  status:'pronto'      },
+  { id:2, nome:'SLA Detalhado — Semana 20',          tipo:'sla',         periodo:'12/05 – 18/05/2025', geradoEm: new Date(Date.now()-604800000), tamanho:'890 KB',  status:'pronto'      },
+  { id:3, nome:'Excecoes e Falhas — Abril 2025',     tipo:'excecoes',    periodo:'01/04 – 30/04/2025', geradoEm: new Date(Date.now()-1209600000),tamanho:'1.1 MB',  status:'pronto'      },
+  { id:4, nome:'Performance por Robo — Q1 2025',     tipo:'performance', periodo:'Jan – Mar 2025',      geradoEm: new Date(Date.now()-2592000000),tamanho:'4.8 MB',  status:'pronto'      },
+  { id:5, nome:'Relatorio Executivo — Junho 2025',   tipo:'executivo',   periodo:'01/06 – hoje',        geradoEm: new Date(Date.now()-3600000),   tamanho:'—',       status:'processando' },
+  { id:6, nome:'Auditoria Completa — Machado',       tipo:'auditoria',   periodo:'Jan – Jun 2025',      geradoEm: new Date(Date.now()-7200000),   tamanho:'—',       status:'processando' },
+];
+
+// ==================== VIEW: AGENDA ====================
+let agendaCargaChart = null;
+
+function renderAgendaView() {
+  // Stats
+  const ativos = agendamentos.filter(a => a.status === 'ativo').length;
+  const pausados = agendamentos.filter(a => a.status === 'pausado').length;
+  const prox1h = agendamentos.filter(a => (a.proximaExec - Date.now()) < 3600000 && a.status === 'ativo').length;
+  document.getElementById('agendaStatsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-calendar-check"></i> Agendamentos ativos</div><div class="stat-number">${ativos}</div><div class="stat-trend">${pausados} pausado(s)</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-clock"></i> Proximos (1h)</div><div class="stat-number">${prox1h}</div><div class="stat-trend trend-up">Em fila de execucao</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-robot"></i> Robos agendados</div><div class="stat-number">${agendamentos.length}</div><div class="stat-trend">de ${robos.length} robos totais</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-server"></i> Carga estimada (24h)</div><div class="stat-number">${agendamentos.filter(a=>a.status==='ativo').length * 8}</div><div class="stat-trend">execucoes previstas</div></div>
+  `;
+
+  // Tabela
+  const tbody = document.getElementById('agendaTableBody');
+  tbody.innerHTML = '';
+  agendamentos.forEach(ag => {
+    const robo = robos.find(r => r.id === ag.roboId);
+    if (!robo) return;
+    const mins = Math.round((ag.proximaExec - Date.now()) / 60000);
+    const proxStr = mins < 60 ? `Em ${mins}min` : `Em ${Math.round(mins/60)}h`;
+    const ultimaStr = ag.ultimaExec.toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const sCls = ag.status === 'ativo' ? 'status-success' : 'status-warning';
+    const sLbl = ag.status === 'ativo' ? 'Ativo' : 'Pausado';
+    const tr = tbody.insertRow();
+    tr.innerHTML = `
+      <td><strong>${robo.nome}</strong></td>
+      <td>${robo.cliente.split(' ').slice(0,2).join(' ')}</td>
+      <td><span style="font-family:monospace;font-size:0.75rem;background:var(--db-bg);padding:2px 8px;border-radius:4px">${ag.frequencia}</span></td>
+      <td><span class="${mins < 60 ? 'trend-up' : ''}" style="font-weight:600">${proxStr}</span></td>
+      <td style="color:var(--db-text-muted);font-size:0.78rem">${ultimaStr}</td>
+      <td><span class="status-badge ${sCls}">${sLbl}</span></td>
+      <td>
+        <button class="btn-secondary" style="padding:4px 10px;font-size:0.7rem;background:${ag.status==='ativo'?'var(--db-warning)':'var(--db-success)'}" onclick="toggleAgendamento(${ag.id})">
+          <i class="fas ${ag.status==='ativo'?'fa-pause':'fa-play'}"></i>
+        </button>
+      </td>
+    `;
+  });
+
+  // Gráfico de carga por hora
+  const horasLabel = Array.from({length:24}, (_,i) => `${String(i).padStart(2,'0')}:00`);
+  const cargaPorHora = Array(24).fill(0);
+  agendamentos.filter(a => a.status === 'ativo').forEach(ag => {
+    for(let h = 0; h < 24; h++) {
+      if (ag.cron.includes('*/')) cargaPorHora[h] += 2;
+      else {
+        const h2 = parseInt(ag.cron.split(' ')[1]);
+        if (!isNaN(h2) && h === h2) cargaPorHora[h] += 1;
+      }
+    }
+  });
+
+  if (agendaCargaChart) agendaCargaChart.destroy();
+  const ctx = document.getElementById('agendaCargaChart');
+  if (ctx) {
+    agendaCargaChart = new Chart(ctx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: horasLabel,
+        datasets: [{ label: 'Execucoes previstas', data: cargaPorHora, backgroundColor: cargaPorHora.map(v => v > 3 ? 'rgba(192,57,43,0.7)' : v > 1 ? 'rgba(196,125,10,0.7)' : 'rgba(62,86,158,0.65)'), borderRadius: 6, borderSkipped: false }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+  }
+
+  // Grade semanal
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];
+  const gridEl = document.getElementById('agendaWeeklyGrid');
+  if (!gridEl) return;
+  gridEl.innerHTML = `
+    <div class="weekly-grid-header">${dias.map(d => `<div class="wg-day-lbl">${d}</div>`).join('')}</div>
+    <div class="weekly-grid-body">
+      ${dias.map((_,di) => {
+        const agsDia = agendamentos.filter(ag => {
+          if (ag.cron.includes('*/')) return true;
+          const parts = ag.cron.split(' ');
+          if (parts[4] === '*') return true;
+          const daysArr = parts[4].split('-');
+          if (daysArr.length === 2) return di >= parseInt(daysArr[0]) && di <= parseInt(daysArr[1]);
+          return parts[4].split(',').map(Number).includes(di);
+        }).filter(a => a.status === 'ativo');
+        return `<div class="wg-day-col">
+          ${agsDia.slice(0,4).map(ag => {
+            const r = robos.find(x => x.id === ag.roboId);
+            return `<div class="wg-chip" title="${r ? r.nome : ''}">${r ? r.nome.substring(0,10) : ''}</div>`;
+          }).join('')}
+          ${agsDia.length > 4 ? `<div class="wg-chip wg-chip-more">+${agsDia.length - 4}</div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function toggleAgendamento(id) {
+  const ag = agendamentos.find(a => a.id === id);
+  if (ag) { ag.status = ag.status === 'ativo' ? 'pausado' : 'ativo'; renderAgendaView(); }
+}
+
+function openNovoAgendamentoModal() {
+  document.getElementById('modalTitle').innerHTML = '<i class="fas fa-calendar-plus" style="color:var(--db-blue)"></i> Novo Agendamento';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="config-fields">
+      <div class="config-field"><label>Robo</label>
+        <select class="config-input">${robos.map(r => `<option value="${r.id}">${r.nome}</option>`).join('')}</select>
+      </div>
+      <div class="config-field"><label>Frequencia</label>
+        <select class="config-input">
+          <option>A cada 30 minutos</option><option>A cada hora</option><option>A cada 2 horas</option>
+          <option>Diario 06:00</option><option>Diario 08:00</option><option>Diario 23:00</option>
+          <option>Seg-Sex 08:00</option><option>Semanal Segunda</option>
+        </select>
+      </div>
+      <div class="config-field"><label>Data de inicio</label><input type="date" class="config-input"></div>
+    </div>
+    <button class="btn-secondary" style="width:100%;justify-content:center;margin-top:16px" onclick="document.getElementById('detailModal').style.display='none'">
+      <i class="fas fa-check"></i> Confirmar agendamento
+    </button>
+  `;
+  document.getElementById('detailModal').style.display = 'block';
+}
+
+// ==================== VIEW: RELATÓRIOS ====================
+let relatoriosTipoChart = null;
+
+function renderRelatoriosView() {
+  document.getElementById('relatoriosStatsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-file-check"></i> Prontos</div><div class="stat-number">${relatorios.filter(r=>r.status==='pronto').length}</div><div class="stat-trend">Disponiveis para download</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-spinner"></i> Processando</div><div class="stat-number">${relatorios.filter(r=>r.status==='processando').length}</div><div class="stat-trend">Aguardar conclusao</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-database"></i> Armazenamento</div><div class="stat-number">9.2MB</div><div class="stat-trend">de 50 MB disponiveis</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-clock-rotate-left"></i> Ultimo gerado</div><div class="stat-number" style="font-size:1rem">Hoje</div><div class="stat-trend">Relatorio executivo Junho</div></div>
+  `;
+
+  const tbody = document.getElementById('relatoriosTableBody');
+  tbody.innerHTML = '';
+  const tipoIcon = { executivo:'fa-star', sla:'fa-gauge-high', excecoes:'fa-bug', performance:'fa-chart-line', auditoria:'fa-magnifying-glass' };
+  relatorios.forEach(r => {
+    const sCls = r.status === 'pronto' ? 'status-success' : 'status-warning';
+    const sLbl = r.status === 'pronto' ? 'Pronto' : 'Processando';
+    const tr = tbody.insertRow();
+    tr.innerHTML = `
+      <td><strong><i class="fas ${tipoIcon[r.tipo]||'fa-file'}" style="color:var(--db-blue);margin-right:6px"></i>${r.nome}</strong></td>
+      <td><span class="robot-tag tag-tipo" style="display:inline-block">${r.tipo}</span></td>
+      <td style="font-size:0.78rem;color:var(--db-text-muted)">${r.periodo}</td>
+      <td style="font-size:0.78rem;color:var(--db-text-muted)">${r.geradoEm.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td>
+      <td style="font-size:0.78rem">${r.tamanho}</td>
+      <td><span class="status-badge ${sCls}">${sLbl}</span></td>
+      <td>
+        ${r.status === 'pronto'
+          ? `<button class="btn-secondary" style="padding:4px 10px;font-size:0.7rem"><i class="fas fa-download"></i> Baixar</button>`
+          : `<span style="font-size:0.75rem;color:var(--db-text-muted)"><i class="fas fa-spinner fa-spin"></i> Aguardando</span>`}
+      </td>
+    `;
+  });
+
+  // Gráfico pizza
+  const tipos = [...new Set(relatorios.map(r => r.tipo))];
+  const counts = tipos.map(t => relatorios.filter(r => r.tipo === t).length);
+  if (relatoriosTipoChart) relatoriosTipoChart.destroy();
+  const ctx = document.getElementById('relatoriosTipoChart');
+  if (ctx) {
+    relatoriosTipoChart = new Chart(ctx.getContext('2d'), {
+      type: 'doughnut',
+      data: { labels: tipos, datasets: [{ data: counts, backgroundColor: ['rgba(62,86,158,0.8)','rgba(189,160,126,0.8)','rgba(192,57,43,0.75)','rgba(31,122,77,0.75)','rgba(196,125,10,0.75)'], borderWidth: 2, borderColor: '#fff' }] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+
+  // Templates
+  const templates = [
+    { icon:'fa-star',         titulo:'Relatorio Executivo',    desc:'Resumo completo de performance, SLA e falhas para diretoria.' },
+    { icon:'fa-gauge-high',   titulo:'Relatorio de SLA',       desc:'Detalhamento do cumprimento de SLA por robo e cliente.' },
+    { icon:'fa-bug',          titulo:'Log de Excecoes',        desc:'Todas as falhas, erros e excecoes no periodo.' },
+    { icon:'fa-chart-line',   titulo:'Performance por Robo',   desc:'Metricas de tempo, taxa de sucesso e gargalos.' },
+    { icon:'fa-magnifying-glass', titulo:'Auditoria Completa', desc:'Relatorio de auditoria para compliance e governanca.' },
+  ];
+  document.getElementById('relatoriosTemplatesGrid').innerHTML = `
+    <div class="relatorios-templates-label"><i class="fas fa-layer-group"></i> Templates de relatorio</div>
+    <div class="relatorios-templates">
+      ${templates.map(t => `
+        <div class="rel-template-card" onclick="gerarRelatorio('${t.titulo}')">
+          <i class="fas ${t.icon}"></i>
+          <div class="rel-template-titulo">${t.titulo}</div>
+          <div class="rel-template-desc">${t.desc}</div>
+          <div class="rel-template-btn"><i class="fas fa-plus"></i> Gerar</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function gerarRelatorio(nome) {
+  document.getElementById('modalTitle').innerHTML = '<i class="fas fa-file-export" style="color:var(--db-blue)"></i> Gerar Relatorio';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="config-fields">
+      <div class="config-field"><label>Tipo</label><input class="config-input" value="${nome}" readonly></div>
+      <div class="config-field"><label>Periodo de inicio</label><input type="date" class="config-input"></div>
+      <div class="config-field"><label>Periodo de fim</label><input type="date" class="config-input"></div>
+      <div class="config-field"><label>Formato</label>
+        <select class="config-input"><option>PDF</option><option>Excel (.xlsx)</option><option>CSV</option></select>
+      </div>
+    </div>
+    <button class="btn-secondary" style="width:100%;justify-content:center;margin-top:16px" onclick="document.getElementById('detailModal').style.display='none'">
+      <i class="fas fa-file-export"></i> Solicitar geracao
+    </button>
+  `;
+  document.getElementById('detailModal').style.display = 'block';
+}
+
+// ==================== VIEW: NOTIFICAÇÕES ====================
+function renderNotifStats() {
+  const naoLidas = notificacoes.filter(n => !n.lida).length;
+  const criticas = notificacoes.filter(n => n.tipo === 'critica').length;
+  const avisos   = notificacoes.filter(n => n.tipo === 'aviso').length;
+  document.getElementById('notifStatsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-envelope"></i> Nao lidas</div><div class="stat-number" style="color:var(--db-blue)">${naoLidas}</div><div class="stat-trend">de ${notificacoes.length} total</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-triangle-exclamation" style="color:var(--db-danger)"></i> Criticas</div><div class="stat-number" style="color:var(--db-danger)">${criticas}</div><div class="stat-trend trend-down">Requerem atencao</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-circle-exclamation" style="color:var(--db-warning)"></i> Avisos</div><div class="stat-number" style="color:var(--db-warning)">${avisos}</div><div class="stat-trend">Monitorar</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-check-circle" style="color:var(--db-success)"></i> Lidas</div><div class="stat-number" style="color:var(--db-success)">${notificacoes.filter(n=>n.lida).length}</div><div class="stat-trend trend-up">Em dia</div></div>
+  `;
+  const badge = document.getElementById('navNotifBadge');
+  if (badge) badge.textContent = naoLidas > 0 ? naoLidas : '';
+}
+
+function renderNotificacoes() {
+  const filtro = document.getElementById('notifFilter')?.value || 'all';
+  const lista = document.getElementById('notifList');
+  if (!lista) return;
+
+  let filtered = [...notificacoes];
+  if (filtro === 'nao-lida') filtered = filtered.filter(n => !n.lida);
+  else if (filtro !== 'all') filtered = filtered.filter(n => n.tipo === filtro);
+
+  const iconMap = { critica:'fa-triangle-exclamation', aviso:'fa-circle-exclamation', info:'fa-circle-info' };
+  const colorMap = { critica:'var(--db-danger)', aviso:'var(--db-warning)', info:'var(--db-blue)' };
+  const bgMap = { critica:'var(--db-danger-bg)', aviso:'var(--db-warning-bg)', info:'rgba(62,86,158,0.08)' };
+
+  lista.innerHTML = filtered.length === 0
+    ? '<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>Nenhuma notificacao encontrada.</p></div>'
+    : filtered.map(n => {
+        const mins = Math.round((Date.now() - n.tempo) / 60000);
+        const tempoStr = mins < 60 ? `${mins}min atras` : mins < 1440 ? `${Math.round(mins/60)}h atras` : `${Math.round(mins/1440)}d atras`;
+        return `
+          <div class="notif-item ${n.lida ? 'notif-lida' : ''}" onclick="lerNotif(${n.id})">
+            <div class="notif-icon" style="background:${bgMap[n.tipo]};color:${colorMap[n.tipo]}">
+              <i class="fas ${iconMap[n.tipo]}"></i>
+            </div>
+            <div class="notif-body">
+              <div class="notif-titulo">${n.titulo}</div>
+              <div class="notif-desc">${n.descricao}</div>
+              <div class="notif-tempo">${tempoStr}</div>
+            </div>
+            ${!n.lida ? '<div class="notif-dot"></div>' : ''}
+          </div>
+        `;
+      }).join('');
+}
+
+function lerNotif(id) {
+  const n = notificacoes.find(x => x.id === id);
+  if (n) { n.lida = true; renderNotificacoes(); renderNotifStats(); }
+}
+
+function marcarTodasLidas() {
+  notificacoes.forEach(n => n.lida = true);
+  renderNotificacoes();
+  renderNotifStats();
+}
+
+function renderNotifPrefs() {
+  const el = document.getElementById('notifPrefsList');
+  if (!el) return;
+  el.innerHTML = notifPrefs.map(p => `
+    <div class="config-toggle-row">
+      <div class="ctr-info">
+        <span class="ctr-label">${p.label}</span>
+        <span class="ctr-desc">${p.desc}</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" ${p.ativo ? 'checked' : ''} onchange="toggleNotifPref('${p.id}', this.checked)">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  `).join('');
+}
+
+function toggleNotifPref(id, val) {
+  const p = notifPrefs.find(x => x.id === id);
+  if (p) p.ativo = val;
+}
+
+// ==================== VIEW: CONFIGURAÇÕES ====================
+function renderConfiguracoesView() {
+  const togEl = document.getElementById('configToggles');
+  if (togEl) {
+    togEl.innerHTML = notifPrefs.map(p => `
+      <div class="config-toggle-row">
+        <div class="ctr-info">
+          <span class="ctr-label">${p.label}</span>
+          <span class="ctr-desc">${p.desc}</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" ${p.ativo ? 'checked' : ''}>
+          <span class="slider round"></span>
+        </label>
+      </div>
+    `).join('');
+  }
+
+  const integEl = document.getElementById('integracoesList');
+  if (integEl) {
+    const integracoes = [
+      { nome:'SAP ERP', icone:'fa-building', status:'conectado', detalhe:'Ultima sincronizacao: 5min atras' },
+      { nome:'Oracle DB', icone:'fa-database', status:'conectado', detalhe:'Ultima sincronizacao: 12min atras' },
+      { nome:'Microsoft Teams', icone:'fa-comment-dots', status:'conectado', detalhe:'Alertas ativos via webhook' },
+      { nome:'E-mail SMTP', icone:'fa-envelope', status:'conectado', detalhe:'noc@dbsoftwares.com.br' },
+      { nome:'Serasa API', icone:'fa-id-card', status:'desconectado', detalhe:'Aguardando configuracao de token' },
+    ];
+    integEl.innerHTML = integracoes.map(i => `
+      <div class="integ-row">
+        <div class="integ-icon" style="background:${i.status==='conectado'?'var(--db-success-bg)':'var(--db-danger-bg)'};color:${i.status==='conectado'?'var(--db-success)':'var(--db-danger)'}">
+          <i class="fas ${i.icone}"></i>
+        </div>
+        <div class="integ-body">
+          <div class="integ-nome">${i.nome}</div>
+          <div class="integ-detalhe">${i.detalhe}</div>
+        </div>
+        <span class="status-badge ${i.status==='conectado'?'status-success':'status-fail'}">${i.status==='conectado'?'Ativo':'Inativo'}</span>
+      </div>
+    `).join('');
+  }
+}
+
+// ==================== VIEW: MONITOR TEMPO REAL (NOC) ====================
+let monitorRealtimeChart = null;
+let monitorInterval = null;
+
+function renderMonitorView() {
+  const agora = new Date();
+  document.getElementById('monitorTimestamp').textContent = `Atualizado: ${agora.toLocaleTimeString('pt-BR')}`;
+
+  const robosAtivos = robos.filter(r => r.statusRobo === 'ativo');
+  const robosErro   = robos.filter(r => r.statusRobo === 'erro');
+
+  document.getElementById('monitorStatsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-play" style="color:var(--db-success)"></i> Robos em execucao</div><div class="stat-number" style="color:var(--db-success)">${robosAtivos.length}</div><div class="stat-trend trend-up">Operacao normal</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-triangle-exclamation" style="color:var(--db-danger)"></i> Com falha ativa</div><div class="stat-number" style="color:var(--db-danger)">${robosErro.length}</div><div class="stat-trend trend-down">Requer NOC</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-server"></i> UAs utilizadas</div><div class="stat-number">${Math.round(robosAtivos.length * 1.2)}</div><div class="stat-trend">de 20 disponíveis</div></div>
+    <div class="stat-card"><div class="stat-title"><i class="fas fa-bolt"></i> Execucoes/min</div><div class="stat-number">${(Math.random()*3+1).toFixed(1)}</div><div class="stat-trend trend-up">Media do dia: 2.4</div></div>
+  `;
+
+  // Grid de robos em execucao
+  const grid = document.getElementById('monitorRobotsGrid');
+  if (grid) {
+    grid.innerHTML = robos.slice(0,8).map(r => {
+      const progresso = Math.floor(Math.random() * 100);
+      const sCls = r.statusRobo === 'ativo' ? '#1F7A4D' : r.statusRobo === 'erro' ? '#C0392B' : '#C47D0A';
+      return `
+        <div class="monitor-robot-tile">
+          <div class="mrt-header">
+            <i class="fas ${r.icone}" style="color:${sCls}"></i>
+            <span class="mrt-nome">${r.nome}</span>
+            <span class="monitor-live-dot" style="${r.statusRobo!=='ativo'?'background:var(--db-danger)':''}"></span>
+          </div>
+          <div class="mrt-client">${r.cliente.split(' ').slice(0,2).join(' ')}</div>
+          <div class="robot-progress-bar" style="margin:8px 0 4px">
+            <div class="robot-progress-fill" style="width:${r.statusRobo==='ativo'?progresso:100}%;background:${sCls}"></div>
+          </div>
+          <div class="mrt-meta">${r.statusRobo==='ativo'?`Executando... ${progresso}%`:r.statusRobo==='erro'?'FALHA DETECTADA':'Pausado'}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Alertas ativos
+  const alertasEl = document.getElementById('monitorAlertasList');
+  if (alertasEl) {
+    alertasEl.innerHTML = notificacoes.filter(n => !n.lida && n.tipo === 'critica').map(n => `
+      <div class="insight-excecao-row" style="border-left:3px solid var(--db-danger)">
+        <div class="ier-icon" style="background:var(--db-danger-bg);color:var(--db-danger)"><i class="fas fa-triangle-exclamation"></i></div>
+        <div class="ier-body"><div class="ier-tipo">${n.titulo}</div><div class="ier-acao">${n.descricao}</div></div>
+        <button class="btn-secondary" style="background:var(--db-danger);padding:4px 10px;font-size:0.7rem" onclick="lerNotif(${n.id});renderMonitorView()"><i class="fas fa-check"></i></button>
+      </div>
+    `).join('') || '<div style="padding:12px;font-size:0.8rem;color:var(--db-text-muted);text-align:center"><i class="fas fa-check-circle" style="color:var(--db-success)"></i> Nenhum alerta critico ativo</div>';
+  }
+
+  // Grafico tempo real
+  const labels = Array.from({length:20}, (_,i) => `${20-i}s`).reverse();
+  const data = Array.from({length:20}, () => Math.floor(Math.random()*5));
+  if (monitorRealtimeChart) monitorRealtimeChart.destroy();
+  const ctx = document.getElementById('monitorRealtimeChart');
+  if (ctx) {
+    monitorRealtimeChart = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{ label: 'Execucoes/min', data, borderColor: '#3E569E', backgroundColor: 'rgba(62,86,158,0.08)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0 }]
+      },
+      options: { animation: false, responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  clearInterval(monitorInterval);
+  monitorInterval = setInterval(() => { if (currentView === 'monitor') renderMonitorView(); else clearInterval(monitorInterval); }, 5000);
 }
 
 // ==================== VIEW: INSIGHTS ====================
